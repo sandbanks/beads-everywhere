@@ -25,7 +25,6 @@ type IssuesResponse struct {
 type Service struct {
 	cfg        *config.Config
 	discoverer *discovery.Discoverer
-	mu         sync.RWMutex
 }
 
 func NewService(cfg *config.Config) *Service {
@@ -202,9 +201,6 @@ func (s *Service) GetIssue(id string) (*models.Issue, error) {
 }
 
 func (s *Service) CreateIssue(repoName, title, desc, issueType string, priority int) (*models.Issue, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
 	repoPath, err := s.findRepoPath(repoName)
 	if err != nil {
 		return nil, err
@@ -247,11 +243,13 @@ func (s *Service) CreateIssue(repoName, title, desc, issueType string, priority 
 	go s.syncGitRepo(repoPath, "bead: "+title)
 
 	if createdID != "" {
-		return s.GetIssue(createdID)
+		if iss, err := s.GetIssue(createdID); err == nil {
+			return iss, nil
+		}
 	}
 
 	return &models.Issue{
-		ID:          "new",
+		ID:          createdID,
 		Project:     filepath.Base(repoPath),
 		ProjectPath: repoPath,
 		Title:       title,
@@ -263,9 +261,6 @@ func (s *Service) CreateIssue(repoName, title, desc, issueType string, priority 
 }
 
 func (s *Service) UpdateIssueStatus(id, newStatus string) (*models.Issue, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
 	iss, err := s.GetIssue(id)
 	if err != nil {
 		return nil, err
@@ -289,9 +284,6 @@ func (s *Service) UpdateIssueStatus(id, newStatus string) (*models.Issue, error)
 }
 
 func (s *Service) DeleteIssue(id string) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
 	iss, err := s.GetIssue(id)
 	if err != nil {
 		return err
