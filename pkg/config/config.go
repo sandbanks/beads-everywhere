@@ -9,10 +9,12 @@ import (
 )
 
 type Config struct {
-	ScanRoots   []string `toml:"scan_roots"`
-	IgnoredDirs []string `toml:"ignored_dirs"`
-	Port        string   `toml:"port"`
-	DefaultRepo string   `toml:"default_repo,omitempty"`
+	ScanRoots    []string `toml:"scan_roots"`
+	AllowedRepos []string `toml:"allowed_repos,omitempty"` // Whitelist (if non-empty, only these are exposed)
+	HiddenRepos  []string `toml:"hidden_repos,omitempty"`  // Blacklist (these are always hidden)
+	IgnoredDirs  []string `toml:"ignored_dirs"`
+	Port         string   `toml:"port"`
+	DefaultRepo  string   `toml:"default_repo,omitempty"`
 }
 
 func DefaultConfig() *Config {
@@ -22,6 +24,8 @@ func DefaultConfig() *Config {
 			filepath.Join(home, "projects"),
 			filepath.Join(home, ".config", "nix-config"),
 		},
+		AllowedRepos: []string{},
+		HiddenRepos:  []string{},
 		IgnoredDirs: []string{
 			".git",
 			"node_modules",
@@ -38,17 +42,21 @@ func DefaultConfig() *Config {
 	}
 }
 
-func LoadConfig() (*Config, error) {
+func LoadConfig(customPath string) (*Config, error) {
 	home, _ := os.UserHomeDir()
-	configDir := filepath.Join(home, ".config", "beads-fleet")
-	configFile := filepath.Join(configDir, "config.toml")
+	configFile := customPath
 
-	if _, err := os.Stat(configFile); os.IsNotExist(err) {
-		cfg := DefaultConfig()
-		_ = os.MkdirAll(configDir, 0755)
-		data, _ := toml.Marshal(cfg)
-		_ = os.WriteFile(configFile, data, 0644)
-		return cfg, nil
+	if configFile == "" {
+		configDir := filepath.Join(home, ".config", "beads-fleet")
+		configFile = filepath.Join(configDir, "config.toml")
+
+		if _, err := os.Stat(configFile); os.IsNotExist(err) {
+			cfg := DefaultConfig()
+			_ = os.MkdirAll(configDir, 0755)
+			data, _ := toml.Marshal(cfg)
+			_ = os.WriteFile(configFile, data, 0644)
+			return cfg, nil
+		}
 	}
 
 	data, err := os.ReadFile(configFile)
@@ -65,6 +73,18 @@ func LoadConfig() (*Config, error) {
 	for i, root := range cfg.ScanRoots {
 		if strings.HasPrefix(root, "~/") {
 			cfg.ScanRoots[i] = filepath.Join(home, root[2:])
+		}
+	}
+
+	// Expand tildes in allowed / hidden repos
+	for i, r := range cfg.AllowedRepos {
+		if strings.HasPrefix(r, "~/") {
+			cfg.AllowedRepos[i] = filepath.Join(home, r[2:])
+		}
+	}
+	for i, r := range cfg.HiddenRepos {
+		if strings.HasPrefix(r, "~/") {
+			cfg.HiddenRepos[i] = filepath.Join(home, r[2:])
 		}
 	}
 

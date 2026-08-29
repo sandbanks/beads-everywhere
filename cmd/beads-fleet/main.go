@@ -6,7 +6,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
 	"text/tabwriter"
 
 	beadsfleet "beads-fleet"
@@ -21,39 +23,109 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	configFileFlag string
+	rootFlag       string
+	allowFlag      string
+	hideFlag       string
+)
+
 var rootCmd = &cobra.Command{
 	Use:   "beads-fleet",
 	Short: "🌐 Multi-repo issue aggregator and web command center for Beads",
 	Run: func(cmd *cobra.Command, args []string) {
-		runReadyCmd("", "open", "")
+		svc := getFleetService()
+		issues, err := svc.ListFleetIssues("", "open", "")
+		if err != nil {
+			log.Fatalf("Error: %v", err)
+		}
+		if len(issues) == 0 {
+			fmt.Println("✨ All clear! No open issues across fleet.")
+			return
+		}
+		fmt.Printf("⚡️ Ready Issues across Fleet (%d total):\n\n", len(issues))
+		w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
+		fmt.Fprintln(w, "PRIORITY\tPROJECT\tID\tTITLE")
+		for _, iss := range issues {
+			fmt.Fprintf(w, "%s\t%s\t%s\t%s\n", iss.PriorityLabel(), iss.Project, iss.ID, iss.Title)
+		}
+		w.Flush()
 	},
 }
 
-func main() {
-	cfg, err := config.LoadConfig()
+func getFleetService() *fleet.Service {
+	cfg, err := config.LoadConfig(configFileFlag)
 	if err != nil {
 		log.Fatalf("Error loading config: %v", err)
 	}
-	svc := fleet.NewService(cfg)
+
+	home, _ := os.UserHomeDir()
+
+	// CLI Root Override
+	if rootFlag != "" {
+		if strings.HasPrefix(rootFlag, "~/") {
+			rootFlag = filepath.Join(home, rootFlag[2:])
+		}
+		cfg.ScanRoots = []string{rootFlag}
+	}
+
+	// CLI Allow Whitelist Override
+	if allowFlag != "" {
+		cfg.AllowedRepos = nil
+		parts := strings.Split(allowFlag, ",")
+		for _, p := range parts {
+			p = strings.TrimSpace(p)
+			if p != "" {
+				if strings.HasPrefix(p, "~/") {
+					p = filepath.Join(home, p[2:])
+				}
+				cfg.AllowedRepos = append(cfg.AllowedRepos, p)
+			}
+		}
+	}
+
+	// CLI Hide Blacklist Override
+	if hideFlag != "" {
+		parts := strings.Split(hideFlag, ",")
+		for _, p := range parts {
+			p = strings.TrimSpace(p)
+			if p != "" {
+				if strings.HasPrefix(p, "~/") {
+					p = filepath.Join(home, p[2:])
+				}
+				cfg.HiddenRepos = append(cfg.HiddenRepos, p)
+			}
+		}
+	}
+
+	return fleet.NewService(cfg)
+}
+
+func main() {
+	rootCmd.PersistentFlags().StringVarP(&configFileFlag, "config", "c", "", "Path to beads-fleet config file")
+	rootCmd.PersistentFlags().StringVar(&rootFlag, "root", "", "Override scan root directory (e.g. ~/dev or ~/projects)")
+	rootCmd.PersistentFlags().StringVar(&allowFlag, "allow", "", "Comma-separated whitelist of allowed project names")
+	rootCmd.PersistentFlags().StringVar(&hideFlag, "hide", "", "Comma-separated blacklist of hidden project names")
 
 	// Subcommands
-	rootCmd.AddCommand(newScanCmd(svc))
-	rootCmd.AddCommand(newReposCmd(svc))
-	rootCmd.AddCommand(newReadyCmd(svc))
-	rootCmd.AddCommand(newSearchCmd(svc))
-	rootCmd.AddCommand(newCreateCmd(svc))
-	rootCmd.AddCommand(newWebCmd(svc))
+	rootCmd.AddCommand(newScanCmd())
+	rootCmd.AddCommand(newReposCmd())
+	rootCmd.AddCommand(newReadyCmd())
+	rootCmd.AddCommand(newSearchCmd())
+	rootCmd.AddCommand(newCreateCmd())
+	rootCmd.AddCommand(newWebCmd())
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}
 }
 
-func newScanCmd(svc *fleet.Service) *cobra.Command {
+func newScanCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "scan",
 		Short: "Scan filesystem roots for all repositories tracked with Beads",
 		Run: func(cmd *cobra.Command, args []string) {
+			svc := getFleetService()
 			repos, err := svc.GetProjectsWithStats()
 			if err != nil {
 				log.Fatalf("Discovery error: %v", err)
@@ -69,12 +141,13 @@ func newScanCmd(svc *fleet.Service) *cobra.Command {
 	}
 }
 
-func newReposCmd(svc *fleet.Service) *cobra.Command {
+func newReposCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:     "repos",
 		Aliases: []string{"list", "ls"},
 		Short:   "List all tracked repositories and active issue counts",
 		Run: func(cmd *cobra.Command, args []string) {
+			svc := getFleetService()
 			repos, err := svc.GetProjectsWithStats()
 			if err != nil {
 				log.Fatalf("Error: %v", err)
@@ -89,12 +162,13 @@ func newReposCmd(svc *fleet.Service) *cobra.Command {
 	}
 }
 
-func newReadyCmd(svc *fleet.Service) *cobra.Command {
+func newReadyCmd() *cobra.Command {
 	var repoFilter string
 	cmd := &cobra.Command{
 		Use:   "ready",
 		Short: "List all actionable, unblocked issues across all fleet projects",
 		Run: func(cmd *cobra.Command, args []string) {
+			svc := getFleetService()
 			issues, err := svc.ListFleetIssues(repoFilter, "open", "")
 			if err != nil {
 				log.Fatalf("Error: %v", err)
@@ -116,12 +190,13 @@ func newReadyCmd(svc *fleet.Service) *cobra.Command {
 	return cmd
 }
 
-func newSearchCmd(svc *fleet.Service) *cobra.Command {
+func newSearchCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "search <query>",
 		Short: "Search issues across all repositories in the fleet",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
+			svc := getFleetService()
 			query := args[0]
 			issues, err := svc.ListFleetIssues("all", "all", query)
 			if err != nil {
@@ -142,7 +217,7 @@ func newSearchCmd(svc *fleet.Service) *cobra.Command {
 	}
 }
 
-func newCreateCmd(svc *fleet.Service) *cobra.Command {
+func newCreateCmd() *cobra.Command {
 	var repo, title, desc, issueType string
 	var priority int
 
@@ -150,6 +225,7 @@ func newCreateCmd(svc *fleet.Service) *cobra.Command {
 		Use:   "create",
 		Short: "Create a new issue in any fleet repository from anywhere",
 		Run: func(cmd *cobra.Command, args []string) {
+			svc := getFleetService()
 			if repo == "" || title == "" {
 				log.Fatal("Error: --repo and --title are required")
 			}
@@ -170,35 +246,24 @@ func newCreateCmd(svc *fleet.Service) *cobra.Command {
 	return cmd
 }
 
-func newWebCmd(svc *fleet.Service) *cobra.Command {
+func newWebCmd() *cobra.Command {
 	var port string
 	cmd := &cobra.Command{
 		Use:   "web",
 		Short: "Start the Beads Fleet web command center",
 		Run: func(cmd *cobra.Command, args []string) {
+			svc := getFleetService()
 			if port == "" {
 				port = svc.Config().Port
 			}
 			if port == "" {
-				port = "8420"
+				port = "8425"
 			}
 			runWebServer(svc, port)
 		},
 	}
-	cmd.Flags().StringVarP(&port, "port", "p", "", "Port to listen on (default 8420)")
+	cmd.Flags().StringVarP(&port, "port", "p", "", "Port to listen on (default 8425)")
 	return cmd
-}
-
-func runReadyCmd(repo, status, search string) {
-	cfg, _ := config.LoadConfig()
-	svc := fleet.NewService(cfg)
-	issues, _ := svc.ListFleetIssues(repo, status, search)
-	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-	fmt.Fprintln(w, "PRIORITY\tPROJECT\tID\tTITLE")
-	for _, iss := range issues {
-		fmt.Fprintf(w, "%s\t%s\t%s\t%s\n", iss.PriorityLabel(), iss.Project, iss.ID, iss.Title)
-	}
-	w.Flush()
 }
 
 func runWebServer(svc *fleet.Service, port string) {

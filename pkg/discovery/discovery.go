@@ -20,6 +20,31 @@ func NewDiscoverer(cfg *config.Config) *Discoverer {
 	return &Discoverer{cfg: cfg}
 }
 
+func (d *Discoverer) isRepoPermitted(name, path string) bool {
+	// If allowed_repos whitelist is defined, must match at least one
+	if len(d.cfg.AllowedRepos) > 0 {
+		allowed := false
+		for _, allow := range d.cfg.AllowedRepos {
+			if strings.EqualFold(name, allow) || path == allow || strings.HasSuffix(path, "/"+allow) {
+				allowed = true
+				break
+			}
+		}
+		if !allowed {
+			return false
+		}
+	}
+
+	// If hidden_repos blacklist is defined, must not match any
+	for _, hide := range d.cfg.HiddenRepos {
+		if strings.EqualFold(name, hide) || path == hide || strings.HasSuffix(path, "/"+hide) {
+			return false
+		}
+	}
+
+	return true
+}
+
 func (d *Discoverer) FindRepositories() ([]models.Project, error) {
 	ignoredMap := make(map[string]bool)
 	for _, ign := range d.cfg.IgnoredDirs {
@@ -43,17 +68,20 @@ func (d *Discoverer) FindRepositories() ([]models.Project, error) {
 
 		// If root itself has .beads
 		if _, err := os.Stat(filepath.Join(rootPath, ".beads")); err == nil {
-			p := models.Project{
-				Name:   filepath.Base(rootPath),
-				Path:   rootPath,
-				HasGit: false,
+			name := filepath.Base(rootPath)
+			if d.isRepoPermitted(name, rootPath) {
+				p := models.Project{
+					Name:   name,
+					Path:   rootPath,
+					HasGit: false,
+				}
+				if _, err := os.Stat(filepath.Join(rootPath, ".git")); err == nil {
+					p.HasGit = true
+				}
+				mu.Lock()
+				projectsMap[rootPath] = p
+				mu.Unlock()
 			}
-			if _, err := os.Stat(filepath.Join(rootPath, ".git")); err == nil {
-				p.HasGit = true
-			}
-			mu.Lock()
-			projectsMap[rootPath] = p
-			mu.Unlock()
 		}
 
 		wg.Add(1)
@@ -77,18 +105,20 @@ func (d *Discoverer) FindRepositories() ([]models.Project, error) {
 					repoDir := filepath.Dir(path)
 					repoName := filepath.Base(repoDir)
 
-					hasGit := false
-					if _, err := os.Stat(filepath.Join(repoDir, ".git")); err == nil {
-						hasGit = true
-					}
+					if d.isRepoPermitted(repoName, repoDir) {
+						hasGit := false
+						if _, err := os.Stat(filepath.Join(repoDir, ".git")); err == nil {
+							hasGit = true
+						}
 
-					mu.Lock()
-					projectsMap[repoDir] = models.Project{
-						Name:   repoName,
-						Path:   repoDir,
-						HasGit: hasGit,
+						mu.Lock()
+						projectsMap[repoDir] = models.Project{
+							Name:   repoName,
+							Path:   repoDir,
+							HasGit: hasGit,
+						}
+						mu.Unlock()
 					}
-					mu.Unlock()
 
 					return filepath.SkipDir
 				}

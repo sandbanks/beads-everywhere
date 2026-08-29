@@ -83,35 +83,34 @@ func (s *Service) findRepoPath(repoName string) (string, error) {
 
 func (s *Service) readRepoIssues(repoPath string) []models.Issue {
 	repoName := filepath.Base(repoPath)
-
-	// Try br list --json first
-	cmd := exec.Command("br", "list", "--json")
-	cmd.Dir = repoPath
-	output, err := cmd.Output()
 	var list []models.Issue
 
-	if err == nil && len(output) > 0 {
-		var resp IssuesResponse
-		if err := json.Unmarshal(output, &resp); err == nil {
-			list = resp.Issues
+	// 1. Direct, ultra-fast JSONL read (< 0.1ms)
+	jsonlPath := filepath.Join(repoPath, ".beads", "issues.jsonl")
+	content, err := os.ReadFile(jsonlPath)
+	if err == nil {
+		lines := strings.Split(string(content), "\n")
+		for _, line := range lines {
+			line = strings.TrimSpace(line)
+			if line == "" {
+				continue
+			}
+			var iss models.Issue
+			if err := json.Unmarshal([]byte(line), &iss); err == nil {
+				list = append(list, iss)
+			}
 		}
 	}
 
-	// Fallback to direct JSONL read
+	// 2. Fallback to `br list --json` if JSONL was empty
 	if len(list) == 0 {
-		jsonlPath := filepath.Join(repoPath, ".beads", "issues.jsonl")
-		content, err := os.ReadFile(jsonlPath)
-		if err == nil {
-			lines := strings.Split(string(content), "\n")
-			for _, line := range lines {
-				line = strings.TrimSpace(line)
-				if line == "" {
-					continue
-				}
-				var iss models.Issue
-				if err := json.Unmarshal([]byte(line), &iss); err == nil {
-					list = append(list, iss)
-				}
+		cmd := exec.Command("br", "list", "--json")
+		cmd.Dir = repoPath
+		output, err := cmd.Output()
+		if err == nil && len(output) > 0 {
+			var resp IssuesResponse
+			if err := json.Unmarshal(output, &resp); err == nil {
+				list = resp.Issues
 			}
 		}
 	}
