@@ -305,6 +305,42 @@ func runWebServer(svc *fleet.Service, port string) {
 		templ.Handler(components.IssueCard(*updated)).ServeHTTP(w, r)
 	})
 
+	// Get Edit Modal
+	r.Get("/issues/{id}/edit", func(w http.ResponseWriter, r *http.Request) {
+		id := chi.URLParam(r, "id")
+		issue, err := svc.GetIssue(id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		templ.Handler(components.IssueEditModal(*issue)).ServeHTTP(w, r)
+	})
+
+	// Edit Issue
+	r.Post("/issues/{id}/edit", func(w http.ResponseWriter, r *http.Request) {
+		id := chi.URLParam(r, "id")
+		if err := r.ParseForm(); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		title := r.FormValue("title")
+		desc := r.FormValue("description")
+		issueType := r.FormValue("issue_type")
+		priorityStr := r.FormValue("priority")
+		priority := 2
+		if p, err := strconv.Atoi(priorityStr); err == nil {
+			priority = p
+		}
+
+		updated, err := svc.UpdateIssue(id, title, desc, priority, issueType)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		templ.Handler(components.IssueCard(*updated)).ServeHTTP(w, r)
+	})
+
 	// Delete Issue
 	r.Delete("/issues/{id}", func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")

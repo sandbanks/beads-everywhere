@@ -283,6 +283,38 @@ func (s *Service) UpdateIssueStatus(id, newStatus string) (*models.Issue, error)
 	return s.GetIssue(id)
 }
 
+func (s *Service) UpdateIssue(id string, title string, desc string, priority int, issueType string) (*models.Issue, error) {
+	iss, err := s.GetIssue(id)
+	if err != nil {
+		return nil, err
+	}
+
+	args := []string{"update", id}
+	if title != "" {
+		args = append(args, "--title="+title)
+	}
+	if desc != "" {
+		args = append(args, "--description="+desc)
+	}
+	if priority >= 0 && priority <= 4 {
+		args = append(args, "--priority="+strconv.Itoa(priority))
+	}
+	if issueType != "" {
+		args = append(args, "--type="+issueType)
+	}
+
+	cmd := exec.Command("br", args...)
+	cmd.Dir = iss.ProjectPath
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return nil, fmt.Errorf("br update failed: %s (%w)", string(out), err)
+	}
+
+	go s.syncGitRepo(iss.ProjectPath, "edit issue: "+id)
+
+	return s.GetIssue(id)
+}
+
 func (s *Service) DeleteIssue(id string) error {
 	iss, err := s.GetIssue(id)
 	if err != nil {
