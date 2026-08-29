@@ -34,27 +34,27 @@ func IssueEditModal(issue models.Issue) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<dialog id=\"edit-issue-modal\" class=\"rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-100 p-0 shadow-2xl backdrop:bg-black/70 backdrop:backdrop-blur-sm max-w-lg w-full m-auto\" open><div class=\"p-6\"><div class=\"flex items-center justify-between pb-4 mb-4 border-b border-zinc-800\"><div class=\"flex items-center gap-2\"><span class=\"text-xl\">✏️</span><h2 class=\"text-base font-bold text-zinc-100\">Edit Bead <span class=\"text-xs font-mono text-zinc-400\">(")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div id=\"edit-issue-modal\" class=\"fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm\" onclick=\"if(event.target === this) this.remove()\"><div class=\"relative w-full max-w-lg rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-100 p-6 shadow-2xl max-h-[90vh] overflow-y-auto\"><div class=\"flex items-center justify-between pb-4 mb-4 border-b border-zinc-800\"><div class=\"flex items-center gap-2\"><span class=\"text-xl\">✏️</span><h2 class=\"text-base font-bold text-zinc-100\">Edit Bead <span class=\"text-xs font-mono text-zinc-400\">(")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(issue.ID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/components/issue_edit_modal.templ`, Line: 14, Col: 118}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/components/issue_edit_modal.templ`, Line: 18, Col: 118}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, ")</span></h2></div><button onclick=\"document.getElementById('edit-issue-modal').close()\" class=\"text-zinc-500 hover:text-zinc-300 transition-colors p-1\"><svg class=\"w-4 h-4\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M6 18L18 6M6 6l12 12\"></path></svg></button></div><form hx-post=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, ")</span></h2></div><button onclick=\"document.getElementById('edit-issue-modal').remove()\" class=\"text-zinc-500 hover:text-zinc-300 transition-colors p-1\"><svg class=\"w-4 h-4\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M6 18L18 6M6 6l12 12\"></path></svg></button></div><form hx-post=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("/issues/%s/edit", issue.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/components/issue_edit_modal.templ`, Line: 24, Col: 54}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/components/issue_edit_modal.templ`, Line: 28, Col: 54}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 		if templ_7745c5c3_Err != nil {
@@ -67,20 +67,20 @@ func IssueEditModal(issue models.Issue) templ.Component {
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("#issue-card-%s", issue.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/components/issue_edit_modal.templ`, Line: 25, Col: 55}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/components/issue_edit_modal.templ`, Line: 29, Col: 55}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" hx-swap=\"outerHTML\" hx-on::after-request=\"if(event.detail.successful) { document.getElementById('edit-issue-modal').close(); }\" class=\"space-y-4\"><div><label class=\"block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5\">Project</label><div class=\"px-3.5 py-2 rounded-xl bg-zinc-950/60 border border-zinc-850 text-xs text-zinc-400 font-mono\">📁 ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" hx-swap=\"outerHTML\" hx-on::after-request=\"if(event.detail.successful) { document.getElementById('edit-issue-modal').remove(); }\" class=\"space-y-4\"><div><label class=\"block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5\">Project</label><div class=\"px-3.5 py-2 rounded-xl bg-zinc-950/60 border border-zinc-800 text-xs text-zinc-400 font-mono\">📁 ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(issue.Project)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/components/issue_edit_modal.templ`, Line: 33, Col: 26}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/components/issue_edit_modal.templ`, Line: 37, Col: 26}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -93,7 +93,7 @@ func IssueEditModal(issue models.Issue) templ.Component {
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(issue.ProjectPath)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/components/issue_edit_modal.templ`, Line: 33, Col: 49}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/components/issue_edit_modal.templ`, Line: 37, Col: 49}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
@@ -106,7 +106,7 @@ func IssueEditModal(issue models.Issue) templ.Component {
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(issue.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/components/issue_edit_modal.templ`, Line: 42, Col: 25}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/components/issue_edit_modal.templ`, Line: 46, Col: 25}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 		if templ_7745c5c3_Err != nil {
@@ -119,7 +119,7 @@ func IssueEditModal(issue models.Issue) templ.Component {
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(issue.Description)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/components/issue_edit_modal.templ`, Line: 54, Col: 25}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/components/issue_edit_modal.templ`, Line: 58, Col: 25}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
@@ -225,7 +225,7 @@ func IssueEditModal(issue models.Issue) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, ">Epic</option></select></div></div><div class=\"pt-3 flex items-center justify-end gap-2\"><button type=\"button\" onclick=\"document.getElementById('edit-issue-modal').close()\" class=\"px-4 py-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 bg-zinc-800/40 hover:bg-zinc-800 rounded-xl transition-colors\">Cancel</button> <button type=\"submit\" class=\"px-5 py-2 text-xs font-semibold text-zinc-950 bg-gradient-to-r from-indigo-400 to-cyan-300 hover:from-indigo-300 hover:to-cyan-200 rounded-xl shadow-md shadow-indigo-500/20 transition-all\">Save Changes 🌐</button></div></form></div></dialog>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, ">Epic</option></select></div></div><div class=\"pt-3 flex items-center justify-end gap-2\"><button type=\"button\" onclick=\"document.getElementById('edit-issue-modal').remove()\" class=\"px-4 py-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 bg-zinc-800/40 hover:bg-zinc-800 rounded-xl transition-colors\">Cancel</button> <button type=\"submit\" class=\"px-5 py-2 text-xs font-semibold text-zinc-950 bg-gradient-to-r from-indigo-400 to-cyan-300 hover:from-indigo-300 hover:to-cyan-200 rounded-xl shadow-md shadow-indigo-500/20 transition-all\">Save Changes 🌐</button></div></form></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
