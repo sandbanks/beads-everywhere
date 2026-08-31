@@ -2,22 +2,22 @@ package components
 
 import (
 	"fmt"
-	"beads-fleet/pkg/models"
+	"beads-everywhere/pkg/models"
 )
 
 templ IssueEditModal(issue models.Issue) {
 	<div
 		id="edit-issue-modal"
-		class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+		class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
 		onclick="if(event.target === this) this.remove()"
 	>
-		<div class="relative w-full max-w-lg rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-100 p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-			<div class="flex items-center justify-between pb-4 mb-4 border-b border-zinc-800">
+		<div class="relative w-full max-w-lg rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+			<div class="flex items-center justify-between pb-4 mb-4 border-b border-zinc-200 dark:border-zinc-800">
 				<div class="flex items-center gap-2">
 					<span class="text-xl">✏️</span>
-					<h2 class="text-base font-bold text-zinc-100">Edit Bead <span class="text-xs font-mono text-zinc-400">({ issue.ID })</span></h2>
+					<h2 class="text-base font-bold text-zinc-900 dark:text-zinc-100">Edit Bead <span class="text-xs font-mono text-zinc-500">({ issue.ID })</span></h2>
 				</div>
-				<button onclick="document.getElementById('edit-issue-modal').remove()" class="text-zinc-500 hover:text-zinc-300 transition-colors p-1">
+				<button onclick="document.getElementById('edit-issue-modal').remove()" class="text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300 transition-colors p-1">
 					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
 					</svg>
@@ -32,38 +32,38 @@ templ IssueEditModal(issue models.Issue) {
 				class="space-y-4"
 			>
 				<div>
-					<label class="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Project</label>
-					<div class="px-3.5 py-2 rounded-xl bg-zinc-950/60 border border-zinc-800 text-xs text-zinc-400 font-mono">
+					<label class="block text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1.5">Project</label>
+					<div class="px-3.5 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800 text-xs text-zinc-600 dark:text-zinc-400 font-mono">
 						📁 { issue.Project } ({ issue.ProjectPath })
 					</div>
 				</div>
 
 				<div>
-					<label class="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Title</label>
+					<label class="block text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1.5">Title</label>
 					<input
 						type="text"
 						name="title"
 						value={ issue.Title }
 						required
-						class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm text-zinc-100 outline-none transition-all"
+						class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm text-zinc-900 dark:text-zinc-100 outline-none transition-all"
 					/>
 				</div>
 
 				<div>
-					<label class="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Description</label>
+					<label class="block text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1.5">Description</label>
 					<textarea
 						name="description"
 						rows="4"
-						class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm text-zinc-100 outline-none transition-all resize-none"
+						class="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm text-zinc-900 dark:text-zinc-100 outline-none transition-all resize-none"
 					>{ issue.Description }</textarea>
 				</div>
 
 				<div class="grid grid-cols-2 gap-3">
 					<div>
-						<label class="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Priority</label>
+						<label class="block text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1.5">Priority</label>
 						<select
 							name="priority"
-							class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 focus:border-indigo-500 text-sm text-zinc-200 outline-none"
+							class="w-full px-3 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 focus:border-amber-500 text-sm text-zinc-900 dark:text-zinc-200 outline-none"
 						>
 							<option value="0" selected?={ issue.Priority == 0 }>P0 - Critical 🔥</option>
 							<option value="1" selected?={ issue.Priority == 1 }>P1 - High ⚡️</option>
@@ -74,10 +74,10 @@ templ IssueEditModal(issue models.Issue) {
 					</div>
 
 					<div>
-						<label class="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Type</label>
+						<label class="block text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1.5">Type</label>
 						<select
 							name="issue_type"
-							class="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 focus:border-indigo-500 text-sm text-zinc-200 outline-none"
+							class="w-full px-3 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 focus:border-amber-500 text-sm text-zinc-900 dark:text-zinc-200 outline-none"
 						>
 							<option value="task" selected?={ issue.IssueType == "task" }>Task</option>
 							<option value="feature" selected?={ issue.IssueType == "feature" }>Feature</option>
@@ -92,15 +92,15 @@ templ IssueEditModal(issue models.Issue) {
 					<button
 						type="button"
 						onclick="document.getElementById('edit-issue-modal').remove()"
-						class="px-4 py-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 bg-zinc-800/40 hover:bg-zinc-800 rounded-xl transition-colors"
+						class="px-4 py-2 text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 bg-zinc-100 dark:bg-zinc-800/40 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-xl transition-colors"
 					>
 						Cancel
 					</button>
 					<button
 						type="submit"
-						class="px-5 py-2 text-xs font-semibold text-zinc-950 bg-gradient-to-r from-indigo-400 to-cyan-300 hover:from-indigo-300 hover:to-cyan-200 rounded-xl shadow-md shadow-indigo-500/20 transition-all"
+						class="px-5 py-2 text-xs font-semibold text-zinc-950 bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 rounded-xl shadow-md shadow-amber-500/20 transition-all"
 					>
-						Save Changes 🌐
+						Save Changes 🐝
 					</button>
 				</div>
 			</form>

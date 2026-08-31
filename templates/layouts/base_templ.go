@@ -9,7 +9,7 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"beads-fleet/pkg/models"
+	"beads-everywhere/pkg/models"
 	"fmt"
 )
 
@@ -34,7 +34,7 @@ func Base(title string, projects []models.Project, selectedRepo string) templ.Co
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!doctype html><html lang=\"en\" class=\"dark\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!doctype html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -47,11 +47,11 @@ func Base(title string, projects []models.Project, selectedRepo string) templ.Co
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</title><link rel=\"icon\" href=\"data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌐</text></svg>\"><link rel=\"stylesheet\" href=\"/static/css/output.css\"><script src=\"/static/js/htmx.min.js\"></script></head><body class=\"bg-zinc-950 text-zinc-100 min-h-screen flex flex-col md:flex-row font-sans selection:bg-indigo-500/30 selection:text-indigo-200\"><!-- Sidebar --><aside class=\"w-full md:w-64 lg:w-72 bg-zinc-900/60 border-b md:border-b-0 md:border-r border-zinc-800/80 flex flex-col shrink-0 md:min-h-screen\"><!-- Brand --><div class=\"h-16 px-5 flex items-center justify-between border-b border-zinc-800/80\"><a href=\"/\" class=\"flex items-center gap-2.5 group\"><div class=\"w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-cyan-400 p-0.5 shadow-lg shadow-indigo-500/20 group-hover:shadow-indigo-500/40 transition-all\"><div class=\"w-full h-full bg-zinc-950 rounded-[10px] flex items-center justify-center\"><span class=\"text-sm\">🌐</span></div></div><div><span class=\"text-base font-bold tracking-tight bg-gradient-to-r from-indigo-200 via-indigo-400 to-cyan-300 bg-clip-text text-transparent\">Beads Fleet</span></div></a> <span class=\"text-[10px] px-2 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-400 font-mono\">v0.1</span></div><!-- Navigation --><div class=\"p-3 space-y-1\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</title><link rel=\"icon\" href=\"data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐝</text></svg>\"><link rel=\"stylesheet\" href=\"/static/css/output.css\"><script src=\"/static/js/htmx.min.js\"></script><!-- Zero-FOUC Theme Initializer --><script>\n\t\t\t\t(function() {\n\t\t\t\t\ttry {\n\t\t\t\t\t\tvar saved = localStorage.getItem('beads-theme');\n\t\t\t\t\t\tvar prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;\n\t\t\t\t\t\tif (saved === 'dark' || (!saved && prefersDark)) {\n\t\t\t\t\t\t\tdocument.documentElement.classList.add('dark');\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\tdocument.documentElement.classList.remove('dark');\n\t\t\t\t\t\t}\n\t\t\t\t\t} catch(e) {}\n\t\t\t\t})();\n\t\t\t</script></head><body class=\"bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 min-h-screen flex flex-col md:flex-row font-sans selection:bg-amber-500/30 selection:text-amber-700 dark:selection:text-amber-200\"><!-- Sidebar --><aside class=\"w-full md:w-64 lg:w-72 bg-white/90 dark:bg-zinc-900/60 border-b md:border-b-0 md:border-r border-zinc-200 dark:border-zinc-800/80 flex flex-col shrink-0 md:min-h-screen backdrop-blur-md\"><!-- Brand --><div class=\"h-16 px-5 flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800/80\"><a href=\"/\" class=\"flex items-center gap-2.5 group\"><div class=\"w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 p-0.5 shadow-md shadow-amber-500/20 group-hover:shadow-amber-500/40 transition-all\"><div class=\"w-full h-full bg-zinc-900 dark:bg-zinc-950 rounded-[10px] flex items-center justify-center\"><span class=\"text-sm\">🐝</span></div></div><div><span class=\"text-base font-bold tracking-tight text-zinc-900 dark:bg-gradient-to-r dark:from-amber-200 dark:via-amber-400 dark:to-orange-300 dark:bg-clip-text dark:text-transparent\">beads everywhere</span></div></a> <span class=\"text-[10px] px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 font-mono font-bold\">be</span></div><!-- Navigation --><div class=\"p-3 space-y-1\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var3 = []any{"flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all", templ.KV("bg-indigo-600/20 text-indigo-300 border border-indigo-500/30", selectedRepo == "" || selectedRepo == "all"), templ.KV("text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50", selectedRepo != "" && selectedRepo != "all")}
+		var templ_7745c5c3_Var3 = []any{"flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all", templ.KV("bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30", selectedRepo == "" || selectedRepo == "all"), templ.KV("text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/50", selectedRepo != "" && selectedRepo != "all")}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var3...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -69,14 +69,14 @@ func Base(title string, projects []models.Project, selectedRepo string) templ.Co
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\"><div class=\"flex items-center gap-2\"><span>⚡️</span> <span>All Fleet Issues</span></div></a></div><!-- Repositories List --><div class=\"px-3 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-zinc-500\">Projects (")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\"><div class=\"flex items-center gap-2\"><span>⚡️</span> <span>All Fleet Issues</span></div></a></div><!-- Repositories List --><div class=\"px-3 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-500\">Projects (")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(projects)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layouts/base.templ`, Line: 52, Col: 49}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layouts/base.templ`, Line: 66, Col: 49}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -87,7 +87,7 @@ func Base(title string, projects []models.Project, selectedRepo string) templ.Co
 			return templ_7745c5c3_Err
 		}
 		for _, p := range projects {
-			var templ_7745c5c3_Var6 = []any{"flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all group", templ.KV("bg-zinc-800/90 text-zinc-100 border border-zinc-700/80 shadow-sm", selectedRepo == p.Name), templ.KV("text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40", selectedRepo != p.Name)}
+			var templ_7745c5c3_Var6 = []any{"flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all group", templ.KV("bg-zinc-200/80 dark:bg-zinc-800/90 text-zinc-900 dark:text-zinc-100 border border-zinc-300 dark:border-zinc-700/80 shadow-sm", selectedRepo == p.Name), templ.KV("text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/40", selectedRepo != p.Name)}
 			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var6...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -99,7 +99,7 @@ func Base(title string, projects []models.Project, selectedRepo string) templ.Co
 			var templ_7745c5c3_Var7 templ.SafeURL
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/?repo=%s", p.Name)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layouts/base.templ`, Line: 57, Col: 61}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layouts/base.templ`, Line: 71, Col: 61}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -118,14 +118,14 @@ func Base(title string, projects []models.Project, selectedRepo string) templ.Co
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\"><div class=\"flex items-center gap-2 truncate\"><span class=\"text-zinc-500 group-hover:text-indigo-400 transition-colors\">📁</span> <span class=\"truncate\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\"><div class=\"flex items-center gap-2 truncate\"><span class=\"text-zinc-400 dark:text-zinc-500 group-hover:text-amber-500 transition-colors\">📁</span> <span class=\"truncate\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(p.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layouts/base.templ`, Line: 62, Col: 39}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layouts/base.templ`, Line: 76, Col: 39}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -136,14 +136,14 @@ func Base(title string, projects []models.Project, selectedRepo string) templ.Co
 				return templ_7745c5c3_Err
 			}
 			if p.OpenIssues > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span class=\"px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span class=\"px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", p.OpenIssues))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layouts/base.templ`, Line: 67, Col: 43}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layouts/base.templ`, Line: 81, Col: 43}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
@@ -155,14 +155,14 @@ func Base(title string, projects []models.Project, selectedRepo string) templ.Co
 				}
 			}
 			if p.InProgIssues > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<span class=\"px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<span class=\"px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", p.InProgIssues))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layouts/base.templ`, Line: 72, Col: 45}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layouts/base.templ`, Line: 86, Col: 45}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -178,24 +178,24 @@ func Base(title string, projects []models.Project, selectedRepo string) templ.Co
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><!-- Footer --><div class=\"p-3 border-t border-zinc-800/60 text-[11px] text-zinc-500 flex items-center justify-between\"><span>Offline-first Git issue tracking</span> <button hx-post=\"/sync\" hx-swap=\"none\" hx-indicator=\"#fleet-sync-spinner\" class=\"p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors\" title=\"Sync all Git repositories\"><svg id=\"fleet-sync-spinner\" class=\"w-3.5 h-3.5 htmx-indicator animate-spin text-indigo-400\" fill=\"none\" viewBox=\"0 0 24 24\"><circle class=\"opacity-25\" cx=\"12\" cy=\"12\" r=\"10\" stroke=\"currentColor\" stroke-width=\"4\"></circle> <path class=\"opacity-75\" fill=\"currentColor\" d=\"M4 12a8 8 0 018-8v8H4z\"></path></svg> <span class=\"sr-only\">Sync</span></button></div></aside><!-- Main Content Area --><div class=\"flex-1 flex flex-col min-w-0\"><!-- Top Bar --><header class=\"h-16 border-b border-zinc-800/80 px-4 sm:px-8 flex items-center justify-between gap-4 bg-zinc-950/60 backdrop-blur-md sticky top-0 z-20\"><div class=\"flex items-center gap-3 truncate\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><!-- Footer --><div class=\"p-3 border-t border-zinc-200 dark:border-zinc-800/60 text-[11px] text-zinc-500 flex items-center justify-between\"><span>Offline-first Git issue tracking</span> <button hx-post=\"/sync\" hx-swap=\"none\" hx-indicator=\"#fleet-sync-spinner\" class=\"p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors\" title=\"Sync all Git repositories\"><svg id=\"fleet-sync-spinner\" class=\"w-3.5 h-3.5 htmx-indicator animate-spin text-amber-500\" fill=\"none\" viewBox=\"0 0 24 24\"><circle class=\"opacity-25\" cx=\"12\" cy=\"12\" r=\"10\" stroke=\"currentColor\" stroke-width=\"4\"></circle> <path class=\"opacity-75\" fill=\"currentColor\" d=\"M4 12a8 8 0 018-8v8H4z\"></path></svg> <span class=\"sr-only\">Sync</span></button></div></aside><!-- Main Content Area --><div class=\"flex-1 flex flex-col min-w-0\"><!-- Top Bar --><header class=\"h-16 border-b border-zinc-200 dark:border-zinc-800/80 px-4 sm:px-8 flex items-center justify-between gap-4 bg-white/80 dark:bg-zinc-950/60 backdrop-blur-md sticky top-0 z-20\"><div class=\"flex items-center gap-3 truncate\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if selectedRepo == "" || selectedRepo == "all" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<h1 class=\"text-base font-bold text-zinc-100 tracking-tight\">🌐 Global Fleet Stream</h1>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<h1 class=\"text-base font-bold text-zinc-900 dark:text-zinc-100 tracking-tight flex items-center gap-2\"><span>🐝</span> <span>Global Stream</span></h1>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<h1 class=\"text-base font-bold text-zinc-100 tracking-tight flex items-center gap-2 truncate\"><span class=\"text-zinc-500\">📁</span> <span class=\"truncate\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<h1 class=\"text-base font-bold text-zinc-900 dark:text-zinc-100 tracking-tight flex items-center gap-2 truncate\"><span class=\"text-zinc-400 dark:text-zinc-500\">📁</span> <span class=\"truncate\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(selectedRepo)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layouts/base.templ`, Line: 109, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/layouts/base.templ`, Line: 126, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
@@ -206,7 +206,7 @@ func Base(title string, projects []models.Project, selectedRepo string) templ.Co
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div><div class=\"flex items-center gap-2 sm:gap-3\"><button onclick=\"document.getElementById('new-issue-modal').showModal()\" class=\"flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-semibold text-zinc-950 bg-gradient-to-r from-indigo-400 to-cyan-300 hover:from-indigo-300 hover:to-cyan-200 shadow-md shadow-indigo-500/20 transition-all whitespace-nowrap\"><span class=\"text-sm font-bold\">+</span> <span>New Bead</span></button></div></header><!-- View Content --><main class=\"flex-1 p-4 sm:p-8 max-w-6xl w-full\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div><div class=\"flex items-center gap-2 sm:gap-3\"><!-- Theme Switcher --><button id=\"theme-toggle-btn\" onclick=\"toggleTheme()\" class=\"p-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors\" title=\"Toggle Light / Dark theme\"><span class=\"dark:hidden\">🌙</span> <span class=\"hidden dark:inline\">☀️</span></button> <button onclick=\"document.getElementById('new-issue-modal').showModal()\" class=\"flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-semibold text-zinc-950 bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 shadow-md shadow-amber-500/20 transition-all whitespace-nowrap\"><span class=\"text-sm font-bold\">+</span> <span>New Bead</span></button></div></header><!-- View Content --><main class=\"flex-1 p-4 sm:p-8 max-w-6xl w-full\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -214,7 +214,7 @@ func Base(title string, projects []models.Project, selectedRepo string) templ.Co
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</main><!-- Dynamic Modal Container --><div id=\"modal-container\"></div></div></body></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</main><!-- Dynamic Modal Container --><div id=\"modal-container\"></div></div><!-- Theme Toggle Script --><script>\n\t\t\t\tfunction toggleTheme() {\n\t\t\t\t\tvar html = document.documentElement;\n\t\t\t\t\tvar isDark = html.classList.contains('dark');\n\t\t\t\t\tif (isDark) {\n\t\t\t\t\t\thtml.classList.remove('dark');\n\t\t\t\t\t\tlocalStorage.setItem('beads-theme', 'light');\n\t\t\t\t\t} else {\n\t\t\t\t\t\thtml.classList.add('dark');\n\t\t\t\t\t\tlocalStorage.setItem('beads-theme', 'dark');\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t</script></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -1,0 +1,44 @@
+package components
+
+templ FilterTabs(selectedRepo string, currentFilter string, oob bool) {
+	<div
+		id="filter-tabs"
+		if oob {
+			hx-swap-oob="true"
+		}
+		class="flex items-center gap-1 p-1 bg-white dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800/80 rounded-xl overflow-x-auto shadow-sm"
+	>
+		<button
+			hx-get={ string(templ.SafeURL("/issues/filter?status=open&repo=" + selectedRepo)) }
+			hx-target="#issues-container"
+			hx-swap="outerHTML"
+			class={ "flex-1 sm:flex-none text-center px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all", templ.KV("bg-amber-500 text-zinc-950 shadow-md shadow-amber-500/20 font-bold", currentFilter == "open" || currentFilter == ""), templ.KV("text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200", currentFilter != "open" && currentFilter != "") }
+		>
+			Ready
+		</button>
+		<button
+			hx-get={ string(templ.SafeURL("/issues/filter?status=in_progress&repo=" + selectedRepo)) }
+			hx-target="#issues-container"
+			hx-swap="outerHTML"
+			class={ "flex-1 sm:flex-none text-center px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all", templ.KV("bg-emerald-500 text-zinc-950 shadow-md shadow-emerald-500/20 font-bold", currentFilter == "in_progress"), templ.KV("text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200", currentFilter != "in_progress") }
+		>
+			In Progress
+		</button>
+		<button
+			hx-get={ string(templ.SafeURL("/issues/filter?status=all&repo=" + selectedRepo)) }
+			hx-target="#issues-container"
+			hx-swap="outerHTML"
+			class={ "flex-1 sm:flex-none text-center px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all", templ.KV("bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 font-bold", currentFilter == "all"), templ.KV("text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200", currentFilter != "all") }
+		>
+			All
+		</button>
+		<button
+			hx-get={ string(templ.SafeURL("/issues/filter?status=closed&repo=" + selectedRepo)) }
+			hx-target="#issues-container"
+			hx-swap="outerHTML"
+			class={ "flex-1 sm:flex-none text-center px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all", templ.KV("bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 font-bold", currentFilter == "closed"), templ.KV("text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300", currentFilter != "closed") }
+		>
+			Closed
+		</button>
+	</div>
+}

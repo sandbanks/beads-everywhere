@@ -38,7 +38,7 @@ func DefaultConfig() *Config {
 			".idea",
 			".tokensave",
 		},
-		Port: "8420",
+		Port: "8425",
 	}
 }
 
@@ -47,15 +47,21 @@ func LoadConfig(customPath string) (*Config, error) {
 	configFile := customPath
 
 	if configFile == "" {
-		configDir := filepath.Join(home, ".config", "beads-fleet")
+		configDir := filepath.Join(home, ".config", "beads-everywhere")
 		configFile = filepath.Join(configDir, "config.toml")
 
 		if _, err := os.Stat(configFile); os.IsNotExist(err) {
-			cfg := DefaultConfig()
-			_ = os.MkdirAll(configDir, 0755)
-			data, _ := toml.Marshal(cfg)
-			_ = os.WriteFile(configFile, data, 0644)
-			return cfg, nil
+			// Fallback check for legacy beads-fleet config
+			legacyFile := filepath.Join(home, ".config", "beads-fleet", "config.toml")
+			if _, lErr := os.Stat(legacyFile); lErr == nil {
+				configFile = legacyFile
+			} else {
+				cfg := DefaultConfig()
+				_ = os.MkdirAll(configDir, 0755)
+				data, _ := toml.Marshal(cfg)
+				_ = os.WriteFile(configFile, data, 0644)
+				return cfg, nil
+			}
 		}
 	}
 

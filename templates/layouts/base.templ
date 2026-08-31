@@ -2,43 +2,57 @@ package layouts
 
 import (
 	"fmt"
-	"beads-fleet/pkg/models"
+	"beads-everywhere/pkg/models"
 )
 
 templ Base(title string, projects []models.Project, selectedRepo string) {
 	<!DOCTYPE html>
-	<html lang="en" class="dark">
+	<html lang="en">
 		<head>
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<title>{ title }</title>
-			<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌐</text></svg>"/>
+			<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐝</text></svg>"/>
 			<link rel="stylesheet" href="/static/css/output.css"/>
 			<script src="/static/js/htmx.min.js"></script>
+			<!-- Zero-FOUC Theme Initializer -->
+			<script>
+				(function() {
+					try {
+						var saved = localStorage.getItem('beads-theme');
+						var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+						if (saved === 'dark' || (!saved && prefersDark)) {
+							document.documentElement.classList.add('dark');
+						} else {
+							document.documentElement.classList.remove('dark');
+						}
+					} catch(e) {}
+				})();
+			</script>
 		</head>
-		<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col md:flex-row font-sans selection:bg-indigo-500/30 selection:text-indigo-200">
+		<body class="bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 min-h-screen flex flex-col md:flex-row font-sans selection:bg-amber-500/30 selection:text-amber-700 dark:selection:text-amber-200">
 			<!-- Sidebar -->
-			<aside class="w-full md:w-64 lg:w-72 bg-zinc-900/60 border-b md:border-b-0 md:border-r border-zinc-800/80 flex flex-col shrink-0 md:min-h-screen">
+			<aside class="w-full md:w-64 lg:w-72 bg-white/90 dark:bg-zinc-900/60 border-b md:border-b-0 md:border-r border-zinc-200 dark:border-zinc-800/80 flex flex-col shrink-0 md:min-h-screen backdrop-blur-md">
 				<!-- Brand -->
-				<div class="h-16 px-5 flex items-center justify-between border-b border-zinc-800/80">
+				<div class="h-16 px-5 flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800/80">
 					<a href="/" class="flex items-center gap-2.5 group">
-						<div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-cyan-400 p-0.5 shadow-lg shadow-indigo-500/20 group-hover:shadow-indigo-500/40 transition-all">
-							<div class="w-full h-full bg-zinc-950 rounded-[10px] flex items-center justify-center">
-								<span class="text-sm">🌐</span>
+						<div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 p-0.5 shadow-md shadow-amber-500/20 group-hover:shadow-amber-500/40 transition-all">
+							<div class="w-full h-full bg-zinc-900 dark:bg-zinc-950 rounded-[10px] flex items-center justify-center">
+								<span class="text-sm">🐝</span>
 							</div>
 						</div>
 						<div>
-							<span class="text-base font-bold tracking-tight bg-gradient-to-r from-indigo-200 via-indigo-400 to-cyan-300 bg-clip-text text-transparent">Beads Fleet</span>
+							<span class="text-base font-bold tracking-tight text-zinc-900 dark:bg-gradient-to-r dark:from-amber-200 dark:via-amber-400 dark:to-orange-300 dark:bg-clip-text dark:text-transparent">beads everywhere</span>
 						</div>
 					</a>
-					<span class="text-[10px] px-2 py-0.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-400 font-mono">v0.1</span>
+					<span class="text-[10px] px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 font-mono font-bold">be</span>
 				</div>
 
 				<!-- Navigation -->
 				<div class="p-3 space-y-1">
 					<a
 						href="/"
-						class={ "flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all", templ.KV("bg-indigo-600/20 text-indigo-300 border border-indigo-500/30", selectedRepo == "" || selectedRepo == "all"), templ.KV("text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50", selectedRepo != "" && selectedRepo != "all") }
+						class={ "flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all", templ.KV("bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30", selectedRepo == "" || selectedRepo == "all"), templ.KV("text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/50", selectedRepo != "" && selectedRepo != "all") }
 					>
 						<div class="flex items-center gap-2">
 							<span>⚡️</span>
@@ -48,27 +62,27 @@ templ Base(title string, projects []models.Project, selectedRepo string) {
 				</div>
 
 				<!-- Repositories List -->
-				<div class="px-3 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+				<div class="px-3 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-500">
 					Projects ({ fmt.Sprintf("%d", len(projects)) })
 				</div>
 				<div class="flex-1 overflow-y-auto px-3 space-y-1 max-h-[40vh] md:max-h-none pb-6">
 					for _, p := range projects {
 						<a
 							href={ templ.SafeURL(fmt.Sprintf("/?repo=%s", p.Name)) }
-							class={ "flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all group", templ.KV("bg-zinc-800/90 text-zinc-100 border border-zinc-700/80 shadow-sm", selectedRepo == p.Name), templ.KV("text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40", selectedRepo != p.Name) }
+							class={ "flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all group", templ.KV("bg-zinc-200/80 dark:bg-zinc-800/90 text-zinc-900 dark:text-zinc-100 border border-zinc-300 dark:border-zinc-700/80 shadow-sm", selectedRepo == p.Name), templ.KV("text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/40", selectedRepo != p.Name) }
 						>
 							<div class="flex items-center gap-2 truncate">
-								<span class="text-zinc-500 group-hover:text-indigo-400 transition-colors">📁</span>
+								<span class="text-zinc-400 dark:text-zinc-500 group-hover:text-amber-500 transition-colors">📁</span>
 								<span class="truncate">{ p.Name }</span>
 							</div>
 							<div class="flex items-center gap-1.5 shrink-0">
 								if p.OpenIssues > 0 {
-									<span class="px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+									<span class="px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30">
 										{ fmt.Sprintf("%d", p.OpenIssues) }
 									</span>
 								}
 								if p.InProgIssues > 0 {
-									<span class="px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+									<span class="px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30">
 										{ fmt.Sprintf("%d", p.InProgIssues) }
 									</span>
 								}
@@ -78,16 +92,16 @@ templ Base(title string, projects []models.Project, selectedRepo string) {
 				</div>
 
 				<!-- Footer -->
-				<div class="p-3 border-t border-zinc-800/60 text-[11px] text-zinc-500 flex items-center justify-between">
+				<div class="p-3 border-t border-zinc-200 dark:border-zinc-800/60 text-[11px] text-zinc-500 flex items-center justify-between">
 					<span>Offline-first Git issue tracking</span>
 					<button
 						hx-post="/sync"
 						hx-swap="none"
 						hx-indicator="#fleet-sync-spinner"
-						class="p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
+						class="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors"
 						title="Sync all Git repositories"
 					>
-						<svg id="fleet-sync-spinner" class="w-3.5 h-3.5 htmx-indicator animate-spin text-indigo-400" fill="none" viewBox="0 0 24 24">
+						<svg id="fleet-sync-spinner" class="w-3.5 h-3.5 htmx-indicator animate-spin text-amber-500" fill="none" viewBox="0 0 24 24">
 							<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
 							<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
 						</svg>
@@ -99,22 +113,36 @@ templ Base(title string, projects []models.Project, selectedRepo string) {
 			<!-- Main Content Area -->
 			<div class="flex-1 flex flex-col min-w-0">
 				<!-- Top Bar -->
-				<header class="h-16 border-b border-zinc-800/80 px-4 sm:px-8 flex items-center justify-between gap-4 bg-zinc-950/60 backdrop-blur-md sticky top-0 z-20">
+				<header class="h-16 border-b border-zinc-200 dark:border-zinc-800/80 px-4 sm:px-8 flex items-center justify-between gap-4 bg-white/80 dark:bg-zinc-950/60 backdrop-blur-md sticky top-0 z-20">
 					<div class="flex items-center gap-3 truncate">
 						if selectedRepo == "" || selectedRepo == "all" {
-							<h1 class="text-base font-bold text-zinc-100 tracking-tight">🌐 Global Fleet Stream</h1>
+							<h1 class="text-base font-bold text-zinc-900 dark:text-zinc-100 tracking-tight flex items-center gap-2">
+								<span>🐝</span>
+								<span>Global Stream</span>
+							</h1>
 						} else {
-							<h1 class="text-base font-bold text-zinc-100 tracking-tight flex items-center gap-2 truncate">
-								<span class="text-zinc-500">📁</span>
+							<h1 class="text-base font-bold text-zinc-900 dark:text-zinc-100 tracking-tight flex items-center gap-2 truncate">
+								<span class="text-zinc-400 dark:text-zinc-500">📁</span>
 								<span class="truncate">{ selectedRepo }</span>
 							</h1>
 						}
 					</div>
 
 					<div class="flex items-center gap-2 sm:gap-3">
+						<!-- Theme Switcher -->
+						<button
+							id="theme-toggle-btn"
+							onclick="toggleTheme()"
+							class="p-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors"
+							title="Toggle Light / Dark theme"
+						>
+							<span class="dark:hidden">🌙</span>
+							<span class="hidden dark:inline">☀️</span>
+						</button>
+
 						<button
 							onclick="document.getElementById('new-issue-modal').showModal()"
-							class="flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-semibold text-zinc-950 bg-gradient-to-r from-indigo-400 to-cyan-300 hover:from-indigo-300 hover:to-cyan-200 shadow-md shadow-indigo-500/20 transition-all whitespace-nowrap"
+							class="flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-semibold text-zinc-950 bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 shadow-md shadow-amber-500/20 transition-all whitespace-nowrap"
 						>
 							<span class="text-sm font-bold">+</span>
 							<span>New Bead</span>
@@ -130,6 +158,21 @@ templ Base(title string, projects []models.Project, selectedRepo string) {
 				<!-- Dynamic Modal Container -->
 				<div id="modal-container"></div>
 			</div>
+
+			<!-- Theme Toggle Script -->
+			<script>
+				function toggleTheme() {
+					var html = document.documentElement;
+					var isDark = html.classList.contains('dark');
+					if (isDark) {
+						html.classList.remove('dark');
+						localStorage.setItem('beads-theme', 'light');
+					} else {
+						html.classList.add('dark');
+						localStorage.setItem('beads-theme', 'dark');
+					}
+				}
+			</script>
 		</body>
 	</html>
 }

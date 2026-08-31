@@ -1,4 +1,4 @@
-package beadsfleet
+package beadseverywhere
 
 import "embed"
 

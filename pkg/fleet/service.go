@@ -12,9 +12,9 @@ import (
 	"sync"
 	"time"
 
-	"beads-fleet/pkg/config"
-	"beads-fleet/pkg/discovery"
-	"beads-fleet/pkg/models"
+	"beads-everywhere/pkg/config"
+	"beads-everywhere/pkg/discovery"
+	"beads-everywhere/pkg/models"
 )
 
 type IssuesResponse struct {

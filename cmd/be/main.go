@@ -11,11 +11,11 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	beadsfleet "beads-fleet"
-	"beads-fleet/pkg/config"
-	"beads-fleet/pkg/fleet"
-	"beads-fleet/templates/components"
-	"beads-fleet/templates/pages"
+	beadseverywhere "beads-everywhere"
+	"beads-everywhere/pkg/config"
+	"beads-everywhere/pkg/fleet"
+	"beads-everywhere/templates/components"
+	"beads-everywhere/templates/pages"
 
 	"github.com/a-h/templ"
 	"github.com/go-chi/chi/v5"
@@ -31,8 +31,9 @@ var (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "beads-fleet",
-	Short: "🌐 Multi-repo issue aggregator and web command center for Beads",
+	Use:     "be",
+	Aliases: []string{"beads-everywhere", "beads-fleet"},
+	Short:   "🐝 Beads Everywhere (be) - Universal multi-repo issue aggregator and command center",
 	Run: func(cmd *cobra.Command, args []string) {
 		svc := getFleetService()
 		issues, err := svc.ListFleetIssues("", "open", "")
@@ -102,7 +103,7 @@ func getFleetService() *fleet.Service {
 }
 
 func main() {
-	rootCmd.PersistentFlags().StringVarP(&configFileFlag, "config", "c", "", "Path to beads-fleet config file")
+	rootCmd.PersistentFlags().StringVarP(&configFileFlag, "config", "c", "", "Path to beads-everywhere config file")
 	rootCmd.PersistentFlags().StringVar(&rootFlag, "root", "", "Override scan root directory (e.g. ~/dev or ~/projects)")
 	rootCmd.PersistentFlags().StringVar(&allowFlag, "allow", "", "Comma-separated whitelist of allowed project names")
 	rootCmd.PersistentFlags().StringVar(&hideFlag, "hide", "", "Comma-separated blacklist of hidden project names")
@@ -114,6 +115,7 @@ func main() {
 	rootCmd.AddCommand(newSearchCmd())
 	rootCmd.AddCommand(newCreateCmd())
 	rootCmd.AddCommand(newWebCmd())
+	rootCmd.AddCommand(newSyncCmd())
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
@@ -144,7 +146,7 @@ func newScanCmd() *cobra.Command {
 func newReposCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:     "repos",
-		Aliases: []string{"list", "ls"},
+		Aliases: []string{"projects", "fleet"},
 		Short:   "List all tracked repositories and active issue counts",
 		Run: func(cmd *cobra.Command, args []string) {
 			svc := getFleetService()
@@ -165,8 +167,9 @@ func newReposCmd() *cobra.Command {
 func newReadyCmd() *cobra.Command {
 	var repoFilter string
 	cmd := &cobra.Command{
-		Use:   "ready",
-		Short: "List all actionable, unblocked issues across all fleet projects",
+		Use:     "ready",
+		Aliases: []string{"list", "ls"},
+		Short:   "List all actionable, unblocked issues across all fleet projects",
 		Run: func(cmd *cobra.Command, args []string) {
 			svc := getFleetService()
 			issues, err := svc.ListFleetIssues(repoFilter, "open", "")
@@ -246,11 +249,27 @@ func newCreateCmd() *cobra.Command {
 	return cmd
 }
 
+func newSyncCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "sync",
+		Short: "Flush and sync all Git repositories tracked in Beads Everywhere",
+		Run: func(cmd *cobra.Command, args []string) {
+			svc := getFleetService()
+			fmt.Println("🔄 Flushing and syncing beads databases to JSONL across fleet...")
+			if err := svc.SyncAll(); err != nil {
+				log.Fatalf("❌ Sync error: %v", err)
+			}
+			fmt.Println("✅ All Beads repositories synced successfully!")
+		},
+	}
+}
+
 func newWebCmd() *cobra.Command {
 	var port string
 	cmd := &cobra.Command{
-		Use:   "web",
-		Short: "Start the Beads Fleet web command center",
+		Use:     "web",
+		Aliases: []string{"ui", "serve"},
+		Short:   "Start the Beads Everywhere web command center",
 		Run: func(cmd *cobra.Command, args []string) {
 			svc := getFleetService()
 			if port == "" {
@@ -267,7 +286,7 @@ func newWebCmd() *cobra.Command {
 }
 
 func runWebServer(svc *fleet.Service, port string) {
-	log.Printf("🌐 Beads Fleet Web Command Center running on http://127.0.0.1:%s", port)
+	log.Printf("🐝 Beads Everywhere Web Command Center running on http://127.0.0.1:%s", port)
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -275,7 +294,7 @@ func runWebServer(svc *fleet.Service, port string) {
 	r.Use(middleware.Compress(5))
 
 	// Static Assets
-	staticContent, err := fs.Sub(beadsfleet.StaticFS, "static")
+	staticContent, err := fs.Sub(beadseverywhere.StaticFS, "static")
 	if err == nil {
 		r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.FS(staticContent))))
 	} else {
@@ -302,7 +321,7 @@ func runWebServer(svc *fleet.Service, port string) {
 		templ.Handler(pages.Index(issues, projects, selectedRepo, status, "")).ServeHTTP(w, r)
 	})
 
-	// Filter Tabs (HTMX endpoint returning updated IssueList)
+	// Filter Tabs (HTMX endpoint returning updated IssueList and FilterTabs via OOB)
 	r.Get("/issues/filter", func(w http.ResponseWriter, r *http.Request) {
 		selectedRepo := r.URL.Query().Get("repo")
 		status := r.URL.Query().Get("status")
@@ -311,7 +330,7 @@ func runWebServer(svc *fleet.Service, port string) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		templ.Handler(components.IssueList(issues)).ServeHTTP(w, r)
+		templ.Handler(components.IssueListWithTabs(issues, selectedRepo, status)).ServeHTTP(w, r)
 	})
 
 	// Live Search (HTMX keyup endpoint)
@@ -323,7 +342,7 @@ func runWebServer(svc *fleet.Service, port string) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		templ.Handler(components.IssueList(issues)).ServeHTTP(w, r)
+		templ.Handler(components.IssueListWithTabs(issues, selectedRepo, "all")).ServeHTTP(w, r)
 	})
 
 	// Create Issue
@@ -350,7 +369,7 @@ func runWebServer(svc *fleet.Service, port string) {
 
 		// Return updated list of open issues
 		issues, _ := svc.ListFleetIssues(repo, "open", "")
-		templ.Handler(components.IssueList(issues)).ServeHTTP(w, r)
+		templ.Handler(components.IssueListWithTabs(issues, repo, "open")).ServeHTTP(w, r)
 	})
 
 	// Update Issue Status

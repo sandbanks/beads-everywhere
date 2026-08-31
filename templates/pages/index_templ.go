@@ -9,9 +9,9 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"beads-fleet/pkg/models"
-	"beads-fleet/templates/components"
-	"beads-fleet/templates/layouts"
+	"beads-everywhere/pkg/models"
+	"beads-everywhere/templates/components"
+	"beads-everywhere/templates/layouts"
 )
 
 func Index(issues []models.Issue, projects []models.Project, selectedRepo string, currentFilter string, search string) templ.Component {
@@ -47,7 +47,7 @@ func Index(issues []models.Issue, projects []models.Project, selectedRepo string
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!-- Top Universal Quick Capture --> <div class=\"mb-5 sm:mb-8\"><form hx-post=\"/issues\" hx-target=\"#issues-container\" hx-swap=\"outerHTML\" hx-on::after-request=\"if(event.detail.successful) { this.reset(); }\" class=\"relative flex flex-col sm:flex-row items-stretch sm:items-center gap-2 shadow-2xl shadow-black/60 rounded-2xl bg-zinc-900/90 border border-zinc-800 p-2 focus-within:border-indigo-500/80 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all duration-300\"><div class=\"flex items-center gap-2 px-2\"><span class=\"text-lg text-indigo-400\">🌐</span> <select name=\"repo\" class=\"bg-zinc-950/80 text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-zinc-800 focus:border-indigo-500 text-zinc-300 outline-none\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!-- Top Universal Quick Capture --> <div class=\"mb-5 sm:mb-8\"><form hx-post=\"/issues\" hx-target=\"#issues-container\" hx-swap=\"outerHTML\" hx-on::after-request=\"if(event.detail.successful) { this.reset(); }\" class=\"relative flex flex-col sm:flex-row items-stretch sm:items-center gap-2 shadow-xl shadow-black/5 dark:shadow-black/60 rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 p-2 focus-within:border-amber-500/80 focus-within:ring-2 focus-within:ring-amber-500/20 transition-all duration-300\"><div class=\"flex items-center gap-2 px-2\"><span class=\"text-lg\">🐝</span> <select name=\"repo\" class=\"bg-zinc-100 dark:bg-zinc-950/80 text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 focus:border-amber-500 text-zinc-800 dark:text-zinc-300 outline-none\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -93,160 +93,28 @@ func Index(issues []models.Issue, projects []models.Project, selectedRepo string
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</select></div><input type=\"text\" name=\"title\" required placeholder=\"Capture a bead or task into this project...\" class=\"flex-1 bg-transparent py-1.5 sm:py-2 px-2 text-sm text-zinc-100 placeholder-zinc-500 outline-none min-w-0\"> <input type=\"hidden\" name=\"priority\" value=\"2\"> <input type=\"hidden\" name=\"issue_type\" value=\"task\"> <button type=\"submit\" class=\"px-4 py-2 rounded-xl text-xs font-semibold text-zinc-950 bg-gradient-to-r from-indigo-400 to-cyan-300 hover:from-indigo-300 hover:to-cyan-200 shadow-md shadow-indigo-500/20 transition-all whitespace-nowrap\">Save Bead ⚡️</button></form></div><!-- Filter Tabs & Live Search Bar --> <div class=\"flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 mb-6\"><!-- Filter Tabs --><div class=\"flex items-center gap-1 p-1 bg-zinc-900/80 border border-zinc-800/80 rounded-xl overflow-x-auto\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</select></div><input type=\"text\" name=\"title\" required placeholder=\"Capture a bead or task into this project...\" class=\"flex-1 bg-transparent py-1.5 sm:py-2 px-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 outline-none min-w-0\"> <input type=\"hidden\" name=\"priority\" value=\"2\"> <input type=\"hidden\" name=\"issue_type\" value=\"task\"> <button type=\"submit\" class=\"px-4 py-2 rounded-xl text-xs font-semibold text-zinc-950 bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 shadow-md shadow-amber-500/20 transition-all whitespace-nowrap\">Save Bead ⚡️</button></form></div><!-- Filter Tabs & Live Search Bar --> <div class=\"flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 mb-6\"><!-- Filter Tabs -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var5 = []any{"flex-1 sm:flex-none text-center px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all", templ.KV("bg-indigo-600 text-white shadow-md shadow-indigo-600/30", currentFilter == "open" || currentFilter == ""), templ.KV("text-zinc-400 hover:text-zinc-200", currentFilter != "open" && currentFilter != "")}
-			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var5...)
+			templ_7745c5c3_Err = components.FilterTabs(selectedRepo, currentFilter, false).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<button hx-get=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<!-- Search input --><div class=\"relative w-full sm:max-w-xs\"><input type=\"text\" name=\"search\" placeholder=\"Search across all fleet...\" hx-get=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(string(templ.SafeURL("/issues/filter?status=open&repo=" + selectedRepo)))
+			var templ_7745c5c3_Var5 string
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(string(templ.SafeURL("/issues/search?repo=" + selectedRepo)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/index.templ`, Line: 58, Col: 86}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/index.templ`, Line: 64, Col: 74}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\" hx-target=\"#issues-container\" hx-swap=\"outerHTML\" class=\"")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var7 string
-			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var5).String())
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/index.templ`, Line: 1, Col: 0}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\">Ready</button> ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var8 = []any{"flex-1 sm:flex-none text-center px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all", templ.KV("bg-emerald-500 text-zinc-950 shadow-md shadow-emerald-500/20", currentFilter == "in_progress"), templ.KV("text-zinc-400 hover:text-zinc-200", currentFilter != "in_progress")}
-			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var8...)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<button hx-get=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var9 string
-			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(string(templ.SafeURL("/issues/filter?status=in_progress&repo=" + selectedRepo)))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/index.templ`, Line: 66, Col: 93}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" hx-target=\"#issues-container\" hx-swap=\"outerHTML\" class=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var10 string
-			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var8).String())
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/index.templ`, Line: 1, Col: 0}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\">In Progress</button> ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var11 = []any{"flex-1 sm:flex-none text-center px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all", templ.KV("bg-zinc-700 text-zinc-100", currentFilter == "all"), templ.KV("text-zinc-400 hover:text-zinc-200", currentFilter != "all")}
-			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var11...)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<button hx-get=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var12 string
-			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(string(templ.SafeURL("/issues/filter?status=all&repo=" + selectedRepo)))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/index.templ`, Line: 74, Col: 85}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\" hx-target=\"#issues-container\" hx-swap=\"outerHTML\" class=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var13 string
-			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var11).String())
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/index.templ`, Line: 1, Col: 0}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\">All</button> ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var14 = []any{"flex-1 sm:flex-none text-center px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all", templ.KV("bg-zinc-800 text-zinc-400", currentFilter == "closed"), templ.KV("text-zinc-500 hover:text-zinc-300", currentFilter != "closed")}
-			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var14...)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<button hx-get=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var15 string
-			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(string(templ.SafeURL("/issues/filter?status=closed&repo=" + selectedRepo)))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/index.templ`, Line: 82, Col: 88}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" hx-target=\"#issues-container\" hx-swap=\"outerHTML\" class=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var16 string
-			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var14).String())
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/index.templ`, Line: 1, Col: 0}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\">Closed</button></div><!-- Search input --><div class=\"relative w-full sm:max-w-xs\"><input type=\"text\" name=\"search\" placeholder=\"Search across all fleet...\" hx-get=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var17 string
-			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(string(templ.SafeURL("/issues/search?repo=" + selectedRepo)))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/pages/index.templ`, Line: 97, Col: 74}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\" hx-trigger=\"keyup changed delay:250ms, search\" hx-target=\"#issues-container\" hx-swap=\"outerHTML\" class=\"w-full pl-9 pr-3.5 py-2 sm:py-1.5 rounded-xl bg-zinc-900/80 border border-zinc-800/80 focus:border-indigo-500/80 text-xs text-zinc-100 placeholder-zinc-500 outline-none transition-all\"> <svg class=\"w-4 h-4 text-zinc-500 absolute left-3 top-3 sm:top-2.5\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z\"></path></svg></div></div><!-- Issues Grid --> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\" hx-trigger=\"keyup changed delay:250ms, search\" hx-target=\"#issues-container\" hx-swap=\"outerHTML\" class=\"w-full pl-9 pr-3.5 py-2 sm:py-1.5 rounded-xl bg-white dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800/80 focus:border-amber-500/80 text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 outline-none transition-all\"> <svg class=\"w-4 h-4 text-zinc-400 dark:text-zinc-500 absolute left-3 top-3 sm:top-2.5\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z\"></path></svg></div></div><!-- Issues Grid --> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -254,7 +122,7 @@ func Index(issues []models.Issue, projects []models.Project, selectedRepo string
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, " <!-- Universal Create Modal --> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, " <!-- Universal Create Modal --> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -264,7 +132,7 @@ func Index(issues []models.Issue, projects []models.Project, selectedRepo string
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.Base("🌐 Beads Fleet - Multi-Repo Command Center", projects, selectedRepo).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.Base("🐝 beads everywhere - Universal Issue Hub", projects, selectedRepo).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

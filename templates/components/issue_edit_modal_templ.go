@@ -9,7 +9,7 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"beads-fleet/pkg/models"
+	"beads-everywhere/pkg/models"
 	"fmt"
 )
 
@@ -34,20 +34,20 @@ func IssueEditModal(issue models.Issue) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div id=\"edit-issue-modal\" class=\"fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm\" onclick=\"if(event.target === this) this.remove()\"><div class=\"relative w-full max-w-lg rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-100 p-6 shadow-2xl max-h-[90vh] overflow-y-auto\"><div class=\"flex items-center justify-between pb-4 mb-4 border-b border-zinc-800\"><div class=\"flex items-center gap-2\"><span class=\"text-xl\">✏️</span><h2 class=\"text-base font-bold text-zinc-100\">Edit Bead <span class=\"text-xs font-mono text-zinc-400\">(")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div id=\"edit-issue-modal\" class=\"fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm\" onclick=\"if(event.target === this) this.remove()\"><div class=\"relative w-full max-w-lg rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 p-6 shadow-2xl max-h-[90vh] overflow-y-auto\"><div class=\"flex items-center justify-between pb-4 mb-4 border-b border-zinc-200 dark:border-zinc-800\"><div class=\"flex items-center gap-2\"><span class=\"text-xl\">✏️</span><h2 class=\"text-base font-bold text-zinc-900 dark:text-zinc-100\">Edit Bead <span class=\"text-xs font-mono text-zinc-500\">(")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(issue.ID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/components/issue_edit_modal.templ`, Line: 18, Col: 118}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/components/issue_edit_modal.templ`, Line: 18, Col: 137}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, ")</span></h2></div><button onclick=\"document.getElementById('edit-issue-modal').remove()\" class=\"text-zinc-500 hover:text-zinc-300 transition-colors p-1\"><svg class=\"w-4 h-4\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M6 18L18 6M6 6l12 12\"></path></svg></button></div><form hx-post=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, ")</span></h2></div><button onclick=\"document.getElementById('edit-issue-modal').remove()\" class=\"text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300 transition-colors p-1\"><svg class=\"w-4 h-4\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M6 18L18 6M6 6l12 12\"></path></svg></button></div><form hx-post=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -73,7 +73,7 @@ func IssueEditModal(issue models.Issue) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" hx-swap=\"outerHTML\" hx-on::after-request=\"if(event.detail.successful) { document.getElementById('edit-issue-modal').remove(); }\" class=\"space-y-4\"><div><label class=\"block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5\">Project</label><div class=\"px-3.5 py-2 rounded-xl bg-zinc-950/60 border border-zinc-800 text-xs text-zinc-400 font-mono\">📁 ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" hx-swap=\"outerHTML\" hx-on::after-request=\"if(event.detail.successful) { document.getElementById('edit-issue-modal').remove(); }\" class=\"space-y-4\"><div><label class=\"block text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1.5\">Project</label><div class=\"px-3.5 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800 text-xs text-zinc-600 dark:text-zinc-400 font-mono\">📁 ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -99,7 +99,7 @@ func IssueEditModal(issue models.Issue) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, ")</div></div><div><label class=\"block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5\">Title</label> <input type=\"text\" name=\"title\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, ")</div></div><div><label class=\"block text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1.5\">Title</label> <input type=\"text\" name=\"title\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -112,7 +112,7 @@ func IssueEditModal(issue models.Issue) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" required class=\"w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm text-zinc-100 outline-none transition-all\"></div><div><label class=\"block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5\">Description</label> <textarea name=\"description\" rows=\"4\" class=\"w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm text-zinc-100 outline-none transition-all resize-none\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" required class=\"w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm text-zinc-900 dark:text-zinc-100 outline-none transition-all\"></div><div><label class=\"block text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1.5\">Description</label> <textarea name=\"description\" rows=\"4\" class=\"w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-sm text-zinc-900 dark:text-zinc-100 outline-none transition-all resize-none\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -125,7 +125,7 @@ func IssueEditModal(issue models.Issue) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</textarea></div><div class=\"grid grid-cols-2 gap-3\"><div><label class=\"block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5\">Priority</label> <select name=\"priority\" class=\"w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 focus:border-indigo-500 text-sm text-zinc-200 outline-none\"><option value=\"0\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</textarea></div><div class=\"grid grid-cols-2 gap-3\"><div><label class=\"block text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1.5\">Priority</label> <select name=\"priority\" class=\"w-full px-3 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 focus:border-amber-500 text-sm text-zinc-900 dark:text-zinc-200 outline-none\"><option value=\"0\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -175,7 +175,7 @@ func IssueEditModal(issue models.Issue) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, ">P4 - Backlog 📋</option></select></div><div><label class=\"block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5\">Type</label> <select name=\"issue_type\" class=\"w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 focus:border-indigo-500 text-sm text-zinc-200 outline-none\"><option value=\"task\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, ">P4 - Backlog 📋</option></select></div><div><label class=\"block text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1.5\">Type</label> <select name=\"issue_type\" class=\"w-full px-3 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 focus:border-amber-500 text-sm text-zinc-900 dark:text-zinc-200 outline-none\"><option value=\"task\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -225,7 +225,7 @@ func IssueEditModal(issue models.Issue) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, ">Epic</option></select></div></div><div class=\"pt-3 flex items-center justify-end gap-2\"><button type=\"button\" onclick=\"document.getElementById('edit-issue-modal').remove()\" class=\"px-4 py-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 bg-zinc-800/40 hover:bg-zinc-800 rounded-xl transition-colors\">Cancel</button> <button type=\"submit\" class=\"px-5 py-2 text-xs font-semibold text-zinc-950 bg-gradient-to-r from-indigo-400 to-cyan-300 hover:from-indigo-300 hover:to-cyan-200 rounded-xl shadow-md shadow-indigo-500/20 transition-all\">Save Changes 🌐</button></div></form></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, ">Epic</option></select></div></div><div class=\"pt-3 flex items-center justify-end gap-2\"><button type=\"button\" onclick=\"document.getElementById('edit-issue-modal').remove()\" class=\"px-4 py-2 text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 bg-zinc-100 dark:bg-zinc-800/40 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-xl transition-colors\">Cancel</button> <button type=\"submit\" class=\"px-5 py-2 text-xs font-semibold text-zinc-950 bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 rounded-xl shadow-md shadow-amber-500/20 transition-all\">Save Changes 🐝</button></div></form></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
