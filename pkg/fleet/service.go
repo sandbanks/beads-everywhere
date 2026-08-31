@@ -17,6 +17,16 @@ import (
 	"beads-everywhere/pkg/models"
 )
 
+func getBeadsBin() string {
+	if bin, err := exec.LookPath("br"); err == nil && bin != "" {
+		return bin
+	}
+	if bin, err := exec.LookPath("bd"); err == nil && bin != "" {
+		return bin
+	}
+	return "br"
+}
+
 type IssuesResponse struct {
 	Issues []models.Issue `json:"issues"`
 	Total  int            `json:"total"`
@@ -102,9 +112,9 @@ func (s *Service) readRepoIssues(repoPath string) []models.Issue {
 		}
 	}
 
-	// 2. Fallback to `br list --json` if JSONL was empty
+	// 2. Fallback to `br list --json` (or `bd list --json`) if JSONL was empty
 	if len(list) == 0 {
-		cmd := exec.Command("br", "list", "--json")
+		cmd := exec.Command(getBeadsBin(), "list", "--json")
 		cmd.Dir = repoPath
 		output, err := cmd.Output()
 		if err == nil && len(output) > 0 {
@@ -216,7 +226,7 @@ func (s *Service) CreateIssue(repoName, title, desc, issueType string, priority 
 		desc = title
 	}
 
-	cmd := exec.Command("br", "create",
+	cmd := exec.Command(getBeadsBin(), "create",
 		"--title="+title,
 		"--description="+desc,
 		"--type="+issueType,
@@ -225,7 +235,7 @@ func (s *Service) CreateIssue(repoName, title, desc, issueType string, priority 
 	cmd.Dir = repoPath
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return nil, fmt.Errorf("br create failed in %s: %s (%w)", repoName, string(out), err)
+		return nil, fmt.Errorf("beads create failed in %s: %s (%w)", repoName, string(out), err)
 	}
 
 	// Extract created issue ID
@@ -267,14 +277,14 @@ func (s *Service) UpdateIssueStatus(id, newStatus string) (*models.Issue, error)
 
 	var cmd *exec.Cmd
 	if newStatus == "closed" {
-		cmd = exec.Command("br", "close", id, "--reason=Completed")
+		cmd = exec.Command(getBeadsBin(), "close", id, "--reason=Completed")
 	} else {
-		cmd = exec.Command("br", "update", id, "--status="+newStatus)
+		cmd = exec.Command(getBeadsBin(), "update", id, "--status="+newStatus)
 	}
 	cmd.Dir = iss.ProjectPath
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return nil, fmt.Errorf("br update failed: %s (%w)", string(out), err)
+		return nil, fmt.Errorf("beads update failed: %s (%w)", string(out), err)
 	}
 
 	go s.syncGitRepo(iss.ProjectPath, "update "+id+" -> "+newStatus)
@@ -302,11 +312,11 @@ func (s *Service) UpdateIssue(id string, title string, desc string, priority int
 		args = append(args, "--type="+issueType)
 	}
 
-	cmd := exec.Command("br", args...)
+	cmd := exec.Command(getBeadsBin(), args...)
 	cmd.Dir = iss.ProjectPath
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return nil, fmt.Errorf("br update failed: %s (%w)", string(out), err)
+		return nil, fmt.Errorf("beads update failed: %s (%w)", string(out), err)
 	}
 
 	go s.syncGitRepo(iss.ProjectPath, "edit issue: "+id)
@@ -320,11 +330,11 @@ func (s *Service) DeleteIssue(id string) error {
 		return err
 	}
 
-	cmd := exec.Command("br", "delete", id)
+	cmd := exec.Command(getBeadsBin(), "delete", id)
 	cmd.Dir = iss.ProjectPath
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("br delete failed: %s (%w)", string(out), err)
+		return fmt.Errorf("beads delete failed: %s (%w)", string(out), err)
 	}
 
 	go s.syncGitRepo(iss.ProjectPath, "delete issue "+id)
@@ -353,7 +363,7 @@ func (s *Service) SyncAll() error {
 }
 
 func (s *Service) syncGitRepo(repoPath, commitMsg string) {
-	flushCmd := exec.Command("br", "sync", "--flush-only")
+	flushCmd := exec.Command(getBeadsBin(), "sync", "--flush-only")
 	flushCmd.Dir = repoPath
 	_ = flushCmd.Run()
 
