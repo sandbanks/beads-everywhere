@@ -35,7 +35,7 @@ restart:
 
 # Rebuild, install, and restart the live service
 deploy: install restart
-    @echo "🚀 beads-everywhere deployed successfully to be.flat9.uk"
+    @echo "🚀 beads-everywhere deployed successfully to beads.flat9.uk"
 
 # Tail service logs
 logs:
