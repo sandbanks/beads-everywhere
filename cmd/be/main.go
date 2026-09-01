@@ -14,10 +14,8 @@ import (
 	beadseverywhere "beads-everywhere"
 	"beads-everywhere/pkg/config"
 	"beads-everywhere/pkg/fleet"
-	"beads-everywhere/templates/components"
-	"beads-everywhere/templates/pages"
+	"beads-everywhere/templates"
 
-	"github.com/a-h/templ"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/spf13/cobra"
@@ -318,7 +316,18 @@ func runWebServer(svc *fleet.Service, port string) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		templ.Handler(pages.Index(issues, projects, selectedRepo, status, "")).ServeHTTP(w, r)
+		data := templates.PageData{
+			Title:         "🐝 beads everywhere - Universal Issue Hub",
+			Projects:      projects,
+			SelectedRepo:  selectedRepo,
+			CurrentFilter: status,
+			Issues:        issues,
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		if err := templates.Render(w, "base", data); err != nil {
+			log.Printf("render error: %v", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 	})
 
 	// Filter Tabs (HTMX endpoint returning updated IssueList and FilterTabs via OOB)
@@ -330,7 +339,13 @@ func runWebServer(svc *fleet.Service, port string) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		templ.Handler(components.IssueListWithTabs(issues, selectedRepo, status)).ServeHTTP(w, r)
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_ = templates.Render(w, "issue_list_with_tabs.html", templates.TabsWithIssuesData{
+			SelectedRepo:  selectedRepo,
+			CurrentFilter: status,
+			OOB:           true,
+			Issues:        issues,
+		})
 	})
 
 	// Live Search (HTMX keyup endpoint)
@@ -342,7 +357,13 @@ func runWebServer(svc *fleet.Service, port string) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		templ.Handler(components.IssueListWithTabs(issues, selectedRepo, "all")).ServeHTTP(w, r)
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_ = templates.Render(w, "issue_list_with_tabs.html", templates.TabsWithIssuesData{
+			SelectedRepo:  selectedRepo,
+			CurrentFilter: "all",
+			OOB:           true,
+			Issues:        issues,
+		})
 	})
 
 	// Create Issue
@@ -369,7 +390,13 @@ func runWebServer(svc *fleet.Service, port string) {
 
 		// Return updated list of open issues
 		issues, _ := svc.ListFleetIssues(repo, "open", "")
-		templ.Handler(components.IssueListWithTabs(issues, repo, "open")).ServeHTTP(w, r)
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_ = templates.Render(w, "issue_list_with_tabs.html", templates.TabsWithIssuesData{
+			SelectedRepo:  repo,
+			CurrentFilter: "open",
+			OOB:           true,
+			Issues:        issues,
+		})
 	})
 
 	// Update Issue Status
@@ -386,7 +413,8 @@ func runWebServer(svc *fleet.Service, port string) {
 			return
 		}
 
-		templ.Handler(components.IssueCard(*updated)).ServeHTTP(w, r)
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_ = templates.Render(w, "issue_card.html", *updated)
 	})
 
 	// Get Edit Modal
@@ -397,7 +425,8 @@ func runWebServer(svc *fleet.Service, port string) {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return
 		}
-		templ.Handler(components.IssueEditModal(*issue)).ServeHTTP(w, r)
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_ = templates.Render(w, "issue_edit_modal.html", *issue)
 	})
 
 	// Edit Issue
@@ -422,7 +451,8 @@ func runWebServer(svc *fleet.Service, port string) {
 			return
 		}
 
-		templ.Handler(components.IssueCard(*updated)).ServeHTTP(w, r)
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_ = templates.Render(w, "issue_card.html", *updated)
 	})
 
 	// Delete Issue

@@ -3,16 +3,12 @@
 default:
     @just --list
 
-# Generate templ Go code from .templ files
-generate:
-    templ generate
-
 # Minify Tailwind CSS
 css:
     tailwindcss -i static/css/input.css -o static/css/output.css --minify
 
 # Build be binary
-build: generate css
+build: css
     go build -o be ./cmd/be
 
 # Install binary to ~/go/bin and re-sign binary on macOS
