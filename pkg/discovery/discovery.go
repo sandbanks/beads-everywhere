@@ -8,8 +8,8 @@ import (
 	"strings"
 	"sync"
 
-	"beads-everywhere/pkg/config"
-	"beads-everywhere/pkg/models"
+	"github.com/sandbanks/beads-everywhere/pkg/config"
+	"github.com/sandbanks/beads-everywhere/pkg/models"
 )
 
 type Discoverer struct {

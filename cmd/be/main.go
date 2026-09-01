@@ -11,10 +11,10 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	beadseverywhere "beads-everywhere"
-	"beads-everywhere/pkg/config"
-	"beads-everywhere/pkg/fleet"
-	"beads-everywhere/templates"
+	beadseverywhere "github.com/sandbanks/beads-everywhere"
+	"github.com/sandbanks/beads-everywhere/pkg/config"
+	"github.com/sandbanks/beads-everywhere/pkg/fleet"
+	"github.com/sandbanks/beads-everywhere/templates"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"

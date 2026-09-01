@@ -12,9 +12,9 @@ import (
 	"sync"
 	"time"
 
-	"beads-everywhere/pkg/config"
-	"beads-everywhere/pkg/discovery"
-	"beads-everywhere/pkg/models"
+	"github.com/sandbanks/beads-everywhere/pkg/config"
+	"github.com/sandbanks/beads-everywhere/pkg/discovery"
+	"github.com/sandbanks/beads-everywhere/pkg/models"
 )
 
 func getBeadsBin() string {

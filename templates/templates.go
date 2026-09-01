@@ -7,7 +7,7 @@ import (
 	"io"
 	"strings"
 
-	"beads-everywhere/pkg/models"
+	"github.com/sandbanks/beads-everywhere/pkg/models"
 )
 
 //go:embed layouts/*.html pages/*.html components/*.html

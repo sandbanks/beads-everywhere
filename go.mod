@@ -1,4 +1,4 @@
-module beads-everywhere
+module github.com/sandbanks/beads-everywhere
 
 go 1.26.7
 
