@@ -1,0 +1,195 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.name }}
+    if: github.event_name == 'workflow_dispatch' || !github.event.release.prerelease
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: darwin-arm64
+            runner: macos-14
+            goos: darwin
+            goarch: arm64
+            bottle_tag: arm64_sonoma
+          - name: linux-amd64
+            runner: ubuntu-22.04
+            goos: linux
+            goarch: amd64
+            bottle_tag: x86_64_linux
+          - name: linux-arm64
+            runner: ubuntu-22.04-arm
+            goos: linux
+            goarch: arm64
+            bottle_tag: arm64_linux
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: 'go.mod'
+          check-latest: true
+
+      - name: Build release binary
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 0
+        run: |
+          mkdir -p dist
+          go build -ldflags="-s -w" -o dist/be ./cmd/be
+
+      - name: Get version
+        id: version
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      # --- Binary archive (all platforms) ---
+      - name: Package binary archive
+        run: |
+          cd dist
+          tar czf "../beads_everywhere-${{ github.ref_name }}-${{ matrix.name }}.tar.gz" be
+          cd ..
+
+      - name: Upload binary archive
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          gh release upload ${{ github.ref_name }} beads_everywhere-${{ github.ref_name }}-${{ matrix.name }}.tar.gz --clobber
+
+      # --- Homebrew bottle (for platforms with bottle_tag) ---
+      - name: Package Homebrew bottle
+        if: matrix.bottle_tag && github.event_name == 'release'
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          BOTTLE_TAG="${{ matrix.bottle_tag }}"
+          mkdir -p beads_everywhere/${VERSION}/bin
+          cp dist/be beads_everywhere/${VERSION}/bin/be
+          ln -s be beads_everywhere/${VERSION}/bin/beads-everywhere
+          chmod +x beads_everywhere/${VERSION}/bin/be
+          tar czf "beads_everywhere-${VERSION}.${BOTTLE_TAG}.bottle.tar.gz" beads_everywhere/
+
+      - name: Upload bottle artifact
+        if: matrix.bottle_tag && github.event_name == 'release'
+        uses: actions/upload-artifact@v7
+        with:
+          name: bottle-${{ matrix.bottle_tag }}
+          path: "beads_everywhere-*.bottle.tar.gz"
+
+  update-homebrew:
+    name: Update Homebrew tap
+    if: github.event_name == 'release' && !github.event.release.prerelease
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Get version
+        id: version
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Download bottle artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: bottles
+          merge-multiple: true
+
+      - name: Upload bottles to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for f in bottles/beads_everywhere-*.bottle.tar.gz; do
+            gh release upload "${GITHUB_REF_NAME}" "$f" --clobber
+          done
+
+      - name: Download source tarball
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          curl -sL "https://github.com/${{ github.repository }}/archive/refs/tags/${GITHUB_REF_NAME}.tar.gz" -o "source.tar.gz"
+
+      - name: Compute SHA256 hashes
+        id: hashes
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          SOURCE_SHA=$(sha256sum source.tar.gz | awk '{print $1}')
+          echo "source_sha=${SOURCE_SHA}" >> "$GITHUB_OUTPUT"
+
+          for f in bottles/beads_everywhere-*.bottle.tar.gz; do
+            tag=$(basename "$f" | sed "s/beads_everywhere-${VERSION}\.\(.*\)\.bottle\.tar\.gz/\1/")
+            sha=$(sha256sum "$f" | awk '{print $1}')
+            echo "${tag}_sha=${sha}" >> "$GITHUB_OUTPUT"
+          done
+
+      - name: Update formula
+        env:
+          TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
+        run: |
+          if [ -z "$TAP_GITHUB_TOKEN" ]; then
+            echo "TAP_GITHUB_TOKEN secret is not configured, skipping automated Homebrew tap push"
+            exit 0
+          fi
+
+          VERSION="${{ steps.version.outputs.version }}"
+          SOURCE_SHA="${{ steps.hashes.outputs.source_sha }}"
+          ARM64_SONOMA_SHA="${{ steps.hashes.outputs.arm64_sonoma_sha }}"
+          X86_64_LINUX_SHA="${{ steps.hashes.outputs.x86_64_linux_sha }}"
+          ARM64_LINUX_SHA="${{ steps.hashes.outputs.arm64_linux_sha }}"
+
+          git clone "https://x-access-token:${TAP_GITHUB_TOKEN}@github.com/sandbanks/homebrew-tap.git" tap
+
+          mkdir -p tap/Formula
+
+          cat > tap/Formula/beads_everywhere.rb << EOF
+          class BeadsEverywhere < Formula
+            desc "Universal multi-repo task hub & web dashboard for Beads"
+            homepage "https://github.com/sandbanks/beads-everywhere"
+            url "https://github.com/sandbanks/beads-everywhere/archive/refs/tags/v\${VERSION}.tar.gz"
+            sha256 "\${SOURCE_SHA}"
+            license "MIT"
+
+            bottle do
+              root_url "https://github.com/sandbanks/beads-everywhere/releases/download/v\${VERSION}"
+              sha256 cellar: :any_skip_relocation, arm64_sonoma: "\${ARM64_SONOMA_SHA}"
+              sha256 cellar: :any_skip_relocation, x86_64_linux: "\${X86_64_LINUX_SHA}"
+              sha256 cellar: :any_skip_relocation, arm64_linux: "\${ARM64_LINUX_SHA}"
+            end
+
+            depends_on "go" => :build
+
+            def install
+              system "go", "build", *std_go_args(ldflags: "-s -w"), "./cmd/be"
+              bin.install_symlink bin/"be" => "beads-everywhere"
+            end
+
+            test do
+              system bin/"be", "--help"
+            end
+          end
+          EOF
+
+          cd tap
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/beads_everywhere.rb
+          git diff --cached --quiet || git commit -m "beads_everywhere \${VERSION}"
+          git push
