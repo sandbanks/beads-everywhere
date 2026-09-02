@@ -28,13 +28,19 @@
 
 ## 📦 Installation
 
-### Option 1: Go Install (Recommended)
+### Option 1: Homebrew (macOS & Linux)
+
+```bash
+brew install sandbanks/tap/beads_everywhere
+```
+
+### Option 2: Go Install
 
 ```bash
 go install github.com/sandbanks/beads-everywhere/cmd/be@latest
 ```
 
-### Option 2: Build from Source
+### Option 3: Build from Source
 
 ```bash
 git clone https://github.com/sandbanks/beads-everywhere.git
