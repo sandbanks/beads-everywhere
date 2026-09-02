@@ -1,0 +1,9 @@
+# Binaries (root level only)
+/be
+/beads-fleet
+/beads-everywhere
+
+# Logs and scratch
+*.log
+tmp/
+.DS_Store
