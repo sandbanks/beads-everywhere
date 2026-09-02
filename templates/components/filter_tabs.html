@@ -1,0 +1,40 @@
+{{ define "filter_tabs.html" }}
+<div
+	id="filter-tabs"
+	{{ if .OOB }}hx-swap-oob="true"{{ end }}
+	class="flex items-center gap-1 p-1 bg-white dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800/80 rounded-xl overflow-x-auto shadow-sm"
+>
+	<button
+		hx-get="/issues/filter?status=open&repo={{ .SelectedRepo }}"
+		hx-target="#issues-container"
+		hx-swap="outerHTML"
+		class="flex-1 sm:flex-none text-center px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all {{ if or (eq .CurrentFilter "open") (eq .CurrentFilter "") }}bg-amber-500 text-zinc-950 shadow-md shadow-amber-500/20 font-bold{{ else }}text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200{{ end }}"
+	>
+		Ready
+	</button>
+	<button
+		hx-get="/issues/filter?status=in_progress&repo={{ .SelectedRepo }}"
+		hx-target="#issues-container"
+		hx-swap="outerHTML"
+		class="flex-1 sm:flex-none text-center px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all {{ if eq .CurrentFilter "in_progress" }}bg-emerald-500 text-zinc-950 shadow-md shadow-emerald-500/20 font-bold{{ else }}text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200{{ end }}"
+	>
+		In Progress
+	</button>
+	<button
+		hx-get="/issues/filter?status=all&repo={{ .SelectedRepo }}"
+		hx-target="#issues-container"
+		hx-swap="outerHTML"
+		class="flex-1 sm:flex-none text-center px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all {{ if eq .CurrentFilter "all" }}bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 font-bold{{ else }}text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200{{ end }}"
+	>
+		All
+	</button>
+	<button
+		hx-get="/issues/filter?status=closed&repo={{ .SelectedRepo }}"
+		hx-target="#issues-container"
+		hx-swap="outerHTML"
+		class="flex-1 sm:flex-none text-center px-3 sm:px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all {{ if eq .CurrentFilter "closed" }}bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 font-bold{{ else }}text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300{{ end }}"
+	>
+		Closed
+	</button>
+</div>
+{{ end }}
