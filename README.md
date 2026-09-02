@@ -1,6 +1,7 @@
 # beads everywhere 🐝⚡️
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/sandbanks/beads-everywhere)](https://goreportcard.com/report/github.com/sandbanks/beads-everywhere)
+[![CI](https://github.com/sandbanks/beads-everywhere/actions/workflows/ci.yml/badge.svg)](https://github.com/sandbanks/beads-everywhere/actions/workflows/ci.yml)
+[![Go Reference](https://pkg.go.dev/badge/github.com/sandbanks/beads-everywhere.svg)](https://pkg.go.dev/github.com/sandbanks/beads-everywhere)
 [![Sponsor](https://img.shields.io/badge/Sponsor-sandbanks-ea4aaa?style=flat-square&logo=githubsponsors&logoColor=white)](https://github.com/sponsors/sandbanks)
 [![License](https://img.shields.io/badge/License-MIT%2FApache--2.0-blue.svg)](LICENSE-MIT)
 
