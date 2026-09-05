@@ -1,0 +1,10 @@
+name: Forgejo CI
+
+on: [push]
+
+jobs:
+  noop:
+    runs-on: [pi5-runner]
+    steps:
+      - name: Hello World
+        run: echo "Forgejo CI shield active - builds and releases handled by GitHub Actions"
