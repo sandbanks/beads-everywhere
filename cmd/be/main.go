@@ -114,6 +114,7 @@ func main() {
 	rootCmd.AddCommand(newCreateCmd())
 	rootCmd.AddCommand(newWebCmd())
 	rootCmd.AddCommand(newSyncCmd())
+	rootCmd.AddCommand(newDoctorCmd())
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
@@ -260,6 +261,87 @@ func newSyncCmd() *cobra.Command {
 			fmt.Println("✅ All Beads repositories synced successfully!")
 		},
 	}
+}
+
+func newDoctorCmd() *cobra.Command {
+	var repairFlag bool
+	var quietFlag bool
+
+	cmd := &cobra.Command{
+		Use:     "doctor",
+		Aliases: []string{"migrate", "health"},
+		Short:   "Audit fleet repository health and automatically migrate schemas",
+		Long: `Doctor audits all Beads workspaces across the fleet.
+It automatically detects and applies pending database schema migrations (e.g. after br upgrades)
+and reports workspace health, repair status, and issue counts.`,
+		Run: func(cmd *cobra.Command, args []string) {
+			svc := getFleetService()
+			home, _ := os.UserHomeDir()
+
+			fmt.Println("🩺 Running fleet doctor & schema migration check...")
+			results, err := svc.DoctorAndMigrate(repairFlag)
+			if err != nil {
+				log.Fatalf("Doctor error: %v", err)
+			}
+
+			w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
+			fmt.Fprintln(w, "WORKSPACE\tHEALTH\tSCHEMA\tISSUES\tPATH")
+
+			var migratedCount, repairedCount, errorCount, healthyCount int
+			for _, r := range results {
+				schemaStr := fmt.Sprintf("v%d", r.ToVersion)
+				if r.Migrated {
+					migratedCount++
+					schemaStr = fmt.Sprintf("migrated (%d->%d)", r.FromVersion, r.ToVersion)
+				}
+				if r.Repaired {
+					repairedCount++
+				}
+				if r.Health == "healthy" {
+					healthyCount++
+				} else {
+					errorCount++
+				}
+
+				if quietFlag && r.Health == "healthy" && !r.Migrated && !r.Repaired && r.Error == "" {
+					continue
+				}
+
+				shortPath := r.Path
+				if home != "" && strings.HasPrefix(shortPath, home) {
+					shortPath = "~" + shortPath[len(home):]
+				}
+
+				issuesStr := fmt.Sprintf("%d / %d", r.OpenIssues, r.TotalIssues)
+				healthDisp := r.Health
+				if r.Repaired {
+					healthDisp = fmt.Sprintf("%s (repaired)", r.Health)
+				}
+				fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n", r.Name, healthDisp, schemaStr, issuesStr, shortPath)
+				if r.Error != "" {
+					fmt.Fprintf(w, "  ↳ Error: %s\t\t\t\t\n", r.Error)
+				}
+			}
+			w.Flush()
+
+			fmt.Println()
+			statusMsg := fmt.Sprintf("Audited %d workspaces: %d healthy", len(results), healthyCount)
+			if migratedCount > 0 {
+				statusMsg += fmt.Sprintf(", %d schema migrations applied", migratedCount)
+			}
+			if repairedCount > 0 {
+				statusMsg += fmt.Sprintf(", %d repaired", repairedCount)
+			}
+			if errorCount > 0 {
+				statusMsg += fmt.Sprintf(", %d need attention", errorCount)
+			}
+			fmt.Printf("✨ %s.\n", statusMsg)
+		},
+	}
+
+	cmd.Flags().BoolVarP(&repairFlag, "repair", "r", false, "Automatically repair degraded or recoverable workspaces")
+	cmd.Flags().BoolVarP(&quietFlag, "quiet", "q", false, "Only show workspaces with issues, errors, or migrations")
+	return cmd
 }
 
 func newWebCmd() *cobra.Command {

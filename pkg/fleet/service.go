@@ -390,3 +390,137 @@ func (s *Service) syncGitRepo(repoPath, commitMsg string) {
 		_ = pushCmd.Run()
 	}
 }
+
+type schemaMigrationPlanOutput struct {
+	Eligible     bool   `json:"eligible"`
+	FromVersion  int    `json:"from_version"`
+	ToVersion    int    `json:"to_version"`
+	PlanToken    string `json:"plan_token"`
+	ApplyCommand string `json:"apply_command"`
+	Note         string `json:"note"`
+}
+
+type doctorOutput struct {
+	WorkspaceHealth string `json:"workspace_health"`
+}
+
+func (s *Service) DoctorAndMigrate(repair bool) ([]models.DoctorRepoResult, error) {
+	repos, err := s.discoverer.FindRepositories()
+	if err != nil {
+		return nil, err
+	}
+
+	results := make([]models.DoctorRepoResult, len(repos))
+	var wg sync.WaitGroup
+	sem := make(chan struct{}, 8)
+
+	for i := range repos {
+		wg.Add(1)
+		go func(idx int) {
+			defer wg.Done()
+			sem <- struct{}{}
+			defer func() { <-sem }()
+
+			results[idx] = s.doctorRepo(repos[idx], repair)
+		}(i)
+	}
+
+	wg.Wait()
+
+	sort.Slice(results, func(i, j int) bool {
+		return strings.ToLower(results[i].Name) < strings.ToLower(results[j].Name)
+	})
+
+	return results, nil
+}
+
+func (s *Service) doctorRepo(repo models.Project, repair bool) models.DoctorRepoResult {
+	res := models.DoctorRepoResult{
+		Name:   repo.Name,
+		Path:   repo.Path,
+		Health: "unknown",
+	}
+
+	bin := getBeadsBin()
+
+	// 1. Schema migration check & auto-apply
+	planCmd := exec.Command(bin, "doctor", "migrate-schema", "plan", "--json")
+	planCmd.Dir = repo.Path
+	planOut, _ := planCmd.CombinedOutput()
+
+	var plan schemaMigrationPlanOutput
+	if err := json.Unmarshal(planOut, &plan); err == nil {
+		res.FromVersion = plan.FromVersion
+		res.ToVersion = plan.ToVersion
+
+		if plan.Eligible && plan.PlanToken != "" {
+			applyCmd := exec.Command(bin, "doctor", "migrate-schema", "apply", "--plan-token", plan.PlanToken, "--json")
+			applyCmd.Dir = repo.Path
+			applyOut, applyErr := applyCmd.CombinedOutput()
+			if applyErr != nil {
+				res.Error = fmt.Sprintf("migration failed: %s", strings.TrimSpace(string(applyOut)))
+			} else {
+				res.Migrated = true
+				res.FromVersion = plan.FromVersion
+				res.ToVersion = plan.ToVersion
+			}
+		}
+	} else {
+		outStr := strings.TrimSpace(string(planOut))
+		if strings.Contains(outStr, "Schema version mismatch") {
+			res.Error = outStr
+		}
+	}
+
+	// 2. Health check
+	docCmd := exec.Command(bin, "doctor", "--json")
+	docCmd.Dir = repo.Path
+	docOut, _ := docCmd.CombinedOutput()
+
+	var doc doctorOutput
+	if err := json.Unmarshal(docOut, &doc); err == nil && doc.WorkspaceHealth != "" {
+		res.Health = doc.WorkspaceHealth
+	} else {
+		for _, line := range strings.Split(string(docOut), "\n") {
+			if strings.Contains(line, "HEALTH workspace:") {
+				parts := strings.Split(line, ":")
+				if len(parts) >= 2 {
+					res.Health = strings.TrimSpace(parts[1])
+				}
+				break
+			}
+		}
+		if res.Health == "unknown" && len(docOut) > 0 {
+			res.Error = strings.TrimSpace(string(docOut))
+		}
+	}
+
+	// 3. Optional repair if degraded/recoverable
+	if repair && (res.Health == "recoverable" || res.Health == "degraded" || res.Health == "unsafe" || res.Health == "error") {
+		repCmd := exec.Command(bin, "doctor", "--repair")
+		repCmd.Dir = repo.Path
+		_ = repCmd.Run()
+		res.Repaired = true
+
+		docCmd2 := exec.Command(bin, "doctor", "--json")
+		docCmd2.Dir = repo.Path
+		if docOut2, err := docCmd2.CombinedOutput(); err == nil {
+			var doc2 doctorOutput
+			if err := json.Unmarshal(docOut2, &doc2); err == nil && doc2.WorkspaceHealth != "" {
+				res.Health = doc2.WorkspaceHealth
+			}
+		}
+	}
+
+	// 4. Issue counts
+	issues := s.readRepoIssues(repo.Path)
+	res.TotalIssues = len(issues)
+	for _, iss := range issues {
+		if iss.Status != "closed" {
+			res.OpenIssues++
+		}
+	}
+
+	return res
+}
+

@@ -22,7 +22,9 @@ func DefaultConfig() *Config {
 	return &Config{
 		ScanRoots: []string{
 			filepath.Join(home, "projects"),
+			filepath.Join(home, "archives"),
 			filepath.Join(home, ".config", "nix-config"),
+			filepath.Join(home, "bin"),
 		},
 		AllowedRepos: []string{},
 		HiddenRepos:  []string{},
@@ -37,6 +39,8 @@ func DefaultConfig() *Config {
 			"build",
 			".idea",
 			".tokensave",
+			".doctor",
+			"Library",
 		},
 		Port: "8425",
 	}

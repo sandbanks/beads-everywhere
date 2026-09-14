@@ -11,6 +11,19 @@ type Project struct {
 	GitBranch    string `json:"git_branch,omitempty"`
 }
 
+type DoctorRepoResult struct {
+	Name        string `json:"name"`
+	Path        string `json:"path"`
+	Health      string `json:"health"`
+	FromVersion int    `json:"from_version,omitempty"`
+	ToVersion   int    `json:"to_version,omitempty"`
+	Migrated    bool   `json:"migrated"`
+	Repaired    bool   `json:"repaired"`
+	Error       string `json:"error,omitempty"`
+	OpenIssues  int    `json:"open_issues"`
+	TotalIssues int    `json:"total_issues"`
+}
+
 type Issue struct {
 	ID              string   `json:"id"`
 	Project         string   `json:"project"`
