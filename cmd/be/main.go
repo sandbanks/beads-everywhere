@@ -14,6 +14,7 @@ import (
 	beadseverywhere "github.com/sandbanks/beads-everywhere"
 	"github.com/sandbanks/beads-everywhere/pkg/config"
 	"github.com/sandbanks/beads-everywhere/pkg/fleet"
+	"github.com/sandbanks/beads-everywhere/pkg/models"
 	"github.com/sandbanks/beads-everywhere/templates"
 
 	"github.com/go-chi/chi/v5"
@@ -122,24 +123,48 @@ func main() {
 }
 
 func newScanCmd() *cobra.Command {
-	return &cobra.Command{
+	var allFlag bool
+	cmd := &cobra.Command{
 		Use:   "scan",
 		Short: "Scan filesystem roots for all repositories tracked with Beads",
 		Run: func(cmd *cobra.Command, args []string) {
 			svc := getFleetService()
-			repos, err := svc.GetProjectsWithStats()
+			var repos []models.Project
+			var err error
+			if allFlag {
+				repos, err = svc.GetAllProjectsWithStats()
+			} else {
+				repos, err = svc.GetProjectsWithStats()
+			}
 			if err != nil {
 				log.Fatalf("Discovery error: %v", err)
 			}
-			fmt.Printf("🔍 Discovered %d Beads repositories across fleet:\n\n", len(repos))
+			scopeLabel := "active projects"
+			if allFlag {
+				scopeLabel = "fleet (active + archives)"
+			}
+			fmt.Printf("🔍 Discovered %d Beads repositories across %s:\n\n", len(repos), scopeLabel)
 			w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
-			fmt.Fprintln(w, "PROJECT\tOPEN\tIN_PROGRESS\tCLOSED\tTOTAL\tPATH")
-			for _, r := range repos {
-				fmt.Fprintf(w, "%s\t%d\t%d\t%d\t%d\t%s\n", r.Name, r.OpenIssues, r.InProgIssues, r.ClosedIssues, r.TotalIssues, r.Path)
+			if allFlag {
+				fmt.Fprintln(w, "PROJECT\tSTATUS\tOPEN\tIN_PROGRESS\tCLOSED\tTOTAL\tPATH")
+				for _, r := range repos {
+					status := "active"
+					if r.Archived {
+						status = "archived"
+					}
+					fmt.Fprintf(w, "%s\t%s\t%d\t%d\t%d\t%d\t%s\n", r.Name, status, r.OpenIssues, r.InProgIssues, r.ClosedIssues, r.TotalIssues, r.Path)
+				}
+			} else {
+				fmt.Fprintln(w, "PROJECT\tOPEN\tIN_PROGRESS\tCLOSED\tTOTAL\tPATH")
+				for _, r := range repos {
+					fmt.Fprintf(w, "%s\t%d\t%d\t%d\t%d\t%s\n", r.Name, r.OpenIssues, r.InProgIssues, r.ClosedIssues, r.TotalIssues, r.Path)
+				}
 			}
 			w.Flush()
 		},
 	}
+	cmd.Flags().BoolVarP(&allFlag, "all", "a", false, "Scan all repositories including archive roots")
+	return cmd
 }
 
 func newReposCmd() *cobra.Command {
@@ -266,12 +291,14 @@ func newSyncCmd() *cobra.Command {
 func newDoctorCmd() *cobra.Command {
 	var repairFlag bool
 	var quietFlag bool
+	var activeOnlyFlag bool
 
 	cmd := &cobra.Command{
 		Use:     "doctor",
 		Aliases: []string{"migrate", "health"},
 		Short:   "Audit fleet repository health and automatically migrate schemas",
 		Long: `Doctor audits all Beads workspaces across the fleet.
+By default, it audits all active and archived workspaces so no databases are left behind during upgrades.
 It automatically detects and applies pending database schema migrations (e.g. after br upgrades)
 and reports workspace health, repair status, and issue counts.`,
 		Run: func(cmd *cobra.Command, args []string) {
@@ -279,13 +306,13 @@ and reports workspace health, repair status, and issue counts.`,
 			home, _ := os.UserHomeDir()
 
 			fmt.Println("🩺 Running fleet doctor & schema migration check...")
-			results, err := svc.DoctorAndMigrate(repairFlag)
+			results, err := svc.DoctorAndMigrate(repairFlag, activeOnlyFlag)
 			if err != nil {
 				log.Fatalf("Doctor error: %v", err)
 			}
 
 			w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
-			fmt.Fprintln(w, "WORKSPACE\tHEALTH\tSCHEMA\tISSUES\tPATH")
+			fmt.Fprintln(w, "WORKSPACE\tSTATUS\tHEALTH\tSCHEMA\tISSUES\tPATH")
 
 			var migratedCount, repairedCount, errorCount, healthyCount int
 			for _, r := range results {
@@ -307,6 +334,11 @@ and reports workspace health, repair status, and issue counts.`,
 					continue
 				}
 
+				statusLabel := "active"
+				if r.Archived {
+					statusLabel = "archived"
+				}
+
 				shortPath := r.Path
 				if home != "" && strings.HasPrefix(shortPath, home) {
 					shortPath = "~" + shortPath[len(home):]
@@ -317,9 +349,9 @@ and reports workspace health, repair status, and issue counts.`,
 				if r.Repaired {
 					healthDisp = fmt.Sprintf("%s (repaired)", r.Health)
 				}
-				fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n", r.Name, healthDisp, schemaStr, issuesStr, shortPath)
+				fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%s\n", r.Name, statusLabel, healthDisp, schemaStr, issuesStr, shortPath)
 				if r.Error != "" {
-					fmt.Fprintf(w, "  ↳ Error: %s\t\t\t\t\n", r.Error)
+					fmt.Fprintf(w, "  ↳ Error: %s\t\t\t\t\t\n", r.Error)
 				}
 			}
 			w.Flush()
@@ -341,6 +373,7 @@ and reports workspace health, repair status, and issue counts.`,
 
 	cmd.Flags().BoolVarP(&repairFlag, "repair", "r", false, "Automatically repair degraded or recoverable workspaces")
 	cmd.Flags().BoolVarP(&quietFlag, "quiet", "q", false, "Only show workspaces with issues, errors, or migrations")
+	cmd.Flags().BoolVar(&activeOnlyFlag, "active-only", false, "Only audit active scan_roots, skipping archives")
 	return cmd
 }
 

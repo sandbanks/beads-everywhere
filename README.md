@@ -19,6 +19,8 @@
 
 * 🔍 **Automatic Project Discovery** — Scans your workspace (default: `~/projects`) and instantly registers every repo containing a `.beads/` database.
 * ⚡️ **Global Task Stream** — View ready, in-progress, and open issues across your entire fleet in a single unified view.
+* 🩺 **Fleet Health & Auto-Migration** — Audits workspace integrity and automatically detects and applies pending database schema migrations (`br doctor migrate-schema`) in parallel across every repository.
+* 🔄 **Fleet Git Sync** — One-command flush and sync of `.beads/` databases to Git-tracked `issues.jsonl` across all repositories.
 * 📝 **One-Click Quick Capture** — File a bead directly into *any* project from the web header without switching directories.
 * 🌓 **Zero-FOUC Dark & Light Themes** — Gorgeous amber-slate claymorphic UI designed for fast keyboard-and-mouse triage.
 * 🦀 **Universal CLI Integration** — Auto-detects and seamlessly drives `br` or `bd` CLI binaries under the hood.
@@ -73,14 +75,35 @@ be web --port 8080 --host 0.0.0.0
 `be` also doubles as a multi-repo command-line tool:
 
 ```bash
-# List all discovered projects and open issue counts
-be projects
+# Audit fleet health and automatically apply schema migrations across all repos
+be doctor
 
-# Show all unblocked/ready issues across all repositories
+# Alias for doctor: run schema migrations across all active and archive repos
+be migrate
+
+# Automatically repair degraded or recoverable workspaces
+be doctor --repair  # or: be doctor -r
+
+# Quiet mode: only display workspaces needing attention or migrations
+be doctor -q
+
+# List discovered active projects and issue counts
+be scan
+
+# Scan all repositories including archive roots
+be scan --all
+
+# Show all unblocked/ready issues across all active repositories
 be ready
 
 # Show all open issues across your fleet
 be list
+
+# Search issues across all repositories
+be search "auth"
+
+# Flush beads databases to issues.jsonl and sync Git repos across fleet
+be sync
 
 # Create an issue in a specific project from anywhere
 be create --repo agentic_ssh --title "Add connection retry backoff" --priority 1
@@ -90,20 +113,37 @@ be create --repo agentic_ssh --title "Add connection retry backoff" --priority 1
 
 ## ⚙️ Configuration
 
-`beads everywhere` works out of the box with zero configuration. If you wish to customize search roots or filter repositories, create `~/.config/beads-everywhere/config.toml`:
+`beads everywhere` works out of the box with zero configuration. To customize search roots, separate active projects from archives, or filter repositories, create `~/.config/beads-everywhere/config.toml` (or `~/.config/beads-fleet/config.toml`):
 
 ```toml
-# Search root directories (defaults to ~/projects)
-roots = [
+# Active search roots: displayed in Web UI and daily CLI triage
+scan_roots = [
     "~/projects",
-    "~/work"
+    "~/.config/nix-config"
 ]
 
-# Optional whitelist (only show these projects)
+# Maintenance & archive roots: audited and auto-migrated by `be doctor`,
+# but kept out of the daily web view and task streams to avoid clutter
+archive_roots = [
+    "~/archives",
+    "~/bin"
+]
+
+# Optional whitelist (only expose these projects)
 # allowed_repos = ["agentic_ssh", "passbook", "sparks"]
 
-# Optional blacklist (hide these projects from UI)
-hidden_repos = ["archive", "scratch"]
+# Optional blacklist (hide these projects from UI and CLI)
+hidden_repos = ["sparks"]
+
+# Directories to ignore during scanning
+ignored_dirs = [
+    ".git", "node_modules", "target", "vendor",
+    ".cache", "tmp", "dist", "build", ".idea",
+    ".tokensave", ".doctor", "Library"
+]
+
+# Web server port
+port = "8425"
 ```
 
 ---

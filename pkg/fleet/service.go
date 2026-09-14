@@ -53,7 +53,18 @@ func (s *Service) GetProjectsWithStats() ([]models.Project, error) {
 	if err != nil {
 		return nil, err
 	}
+	return s.loadRepoStats(repos), nil
+}
 
+func (s *Service) GetAllProjectsWithStats() ([]models.Project, error) {
+	repos, err := s.discoverer.FindAllRepositories()
+	if err != nil {
+		return nil, err
+	}
+	return s.loadRepoStats(repos), nil
+}
+
+func (s *Service) loadRepoStats(repos []models.Project) []models.Project {
 	var wg sync.WaitGroup
 	for i := range repos {
 		wg.Add(1)
@@ -75,11 +86,11 @@ func (s *Service) GetProjectsWithStats() ([]models.Project, error) {
 	}
 	wg.Wait()
 
-	return repos, nil
+	return repos
 }
 
 func (s *Service) findRepoPath(repoName string) (string, error) {
-	repos, err := s.discoverer.FindRepositories()
+	repos, err := s.discoverer.FindAllRepositories()
 	if err != nil {
 		return "", err
 	}
@@ -404,8 +415,14 @@ type doctorOutput struct {
 	WorkspaceHealth string `json:"workspace_health"`
 }
 
-func (s *Service) DoctorAndMigrate(repair bool) ([]models.DoctorRepoResult, error) {
-	repos, err := s.discoverer.FindRepositories()
+func (s *Service) DoctorAndMigrate(repair, activeOnly bool) ([]models.DoctorRepoResult, error) {
+	var repos []models.Project
+	var err error
+	if activeOnly {
+		repos, err = s.discoverer.FindRepositories()
+	} else {
+		repos, err = s.discoverer.FindAllRepositories()
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -436,9 +453,10 @@ func (s *Service) DoctorAndMigrate(repair bool) ([]models.DoctorRepoResult, erro
 
 func (s *Service) doctorRepo(repo models.Project, repair bool) models.DoctorRepoResult {
 	res := models.DoctorRepoResult{
-		Name:   repo.Name,
-		Path:   repo.Path,
-		Health: "unknown",
+		Name:     repo.Name,
+		Path:     repo.Path,
+		Health:   "unknown",
+		Archived: repo.Archived,
 	}
 
 	bin := getBeadsBin()

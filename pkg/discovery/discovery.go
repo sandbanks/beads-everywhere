@@ -46,6 +46,29 @@ func (d *Discoverer) isRepoPermitted(name, path string) bool {
 }
 
 func (d *Discoverer) FindRepositories() ([]models.Project, error) {
+	return d.findRepositoriesInRoots(d.cfg.ScanRoots, false)
+}
+
+func (d *Discoverer) FindAllRepositories() ([]models.Project, error) {
+	active, err := d.findRepositoriesInRoots(d.cfg.ScanRoots, false)
+	if err != nil {
+		return nil, err
+	}
+	if len(d.cfg.ArchiveRoots) == 0 {
+		return active, nil
+	}
+	archived, err := d.findRepositoriesInRoots(d.cfg.ArchiveRoots, true)
+	if err != nil {
+		return active, nil
+	}
+	combined := append(active, archived...)
+	sort.Slice(combined, func(i, j int) bool {
+		return strings.ToLower(combined[i].Name) < strings.ToLower(combined[j].Name)
+	})
+	return combined, nil
+}
+
+func (d *Discoverer) findRepositoriesInRoots(roots []string, isArchived bool) ([]models.Project, error) {
 	ignoredMap := make(map[string]bool)
 	for _, ign := range d.cfg.IgnoredDirs {
 		ignoredMap[ign] = true
@@ -55,7 +78,7 @@ func (d *Discoverer) FindRepositories() ([]models.Project, error) {
 	projectsMap := make(map[string]models.Project)
 	var wg sync.WaitGroup
 
-	for _, root := range d.cfg.ScanRoots {
+	for _, root := range roots {
 		rootPath, err := filepath.Abs(root)
 		if err != nil {
 			continue
@@ -71,9 +94,10 @@ func (d *Discoverer) FindRepositories() ([]models.Project, error) {
 			name := filepath.Base(rootPath)
 			if d.isRepoPermitted(name, rootPath) {
 				p := models.Project{
-					Name:   name,
-					Path:   rootPath,
-					HasGit: false,
+					Name:     name,
+					Path:     rootPath,
+					HasGit:   false,
+					Archived: isArchived,
 				}
 				if _, err := os.Stat(filepath.Join(rootPath, ".git")); err == nil {
 					p.HasGit = true
@@ -113,9 +137,10 @@ func (d *Discoverer) FindRepositories() ([]models.Project, error) {
 
 						mu.Lock()
 						projectsMap[repoDir] = models.Project{
-							Name:   repoName,
-							Path:   repoDir,
-							HasGit: hasGit,
+							Name:     repoName,
+							Path:     repoDir,
+							HasGit:   hasGit,
+							Archived: isArchived,
 						}
 						mu.Unlock()
 					}

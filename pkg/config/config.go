@@ -10,6 +10,7 @@ import (
 
 type Config struct {
 	ScanRoots    []string `toml:"scan_roots"`
+	ArchiveRoots []string `toml:"archive_roots,omitempty"` // Maintenance/archive roots (audited by be doctor, hidden from web UI)
 	AllowedRepos []string `toml:"allowed_repos,omitempty"` // Whitelist (if non-empty, only these are exposed)
 	HiddenRepos  []string `toml:"hidden_repos,omitempty"`  // Blacklist (these are always hidden)
 	IgnoredDirs  []string `toml:"ignored_dirs"`
@@ -22,8 +23,10 @@ func DefaultConfig() *Config {
 	return &Config{
 		ScanRoots: []string{
 			filepath.Join(home, "projects"),
-			filepath.Join(home, "archives"),
 			filepath.Join(home, ".config", "nix-config"),
+		},
+		ArchiveRoots: []string{
+			filepath.Join(home, "archives"),
 			filepath.Join(home, "bin"),
 		},
 		AllowedRepos: []string{},
@@ -83,6 +86,13 @@ func LoadConfig(customPath string) (*Config, error) {
 	for i, root := range cfg.ScanRoots {
 		if strings.HasPrefix(root, "~/") {
 			cfg.ScanRoots[i] = filepath.Join(home, root[2:])
+		}
+	}
+
+	// Expand tildes in archive roots
+	for i, root := range cfg.ArchiveRoots {
+		if strings.HasPrefix(root, "~/") {
+			cfg.ArchiveRoots[i] = filepath.Join(home, root[2:])
 		}
 	}
 

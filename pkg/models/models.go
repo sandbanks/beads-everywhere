@@ -9,6 +9,7 @@ type Project struct {
 	ClosedIssues int    `json:"closed_issues"`
 	HasGit       bool   `json:"has_git"`
 	GitBranch    string `json:"git_branch,omitempty"`
+	Archived     bool   `json:"archived,omitempty"`
 }
 
 type DoctorRepoResult struct {
@@ -22,6 +23,7 @@ type DoctorRepoResult struct {
 	Error       string `json:"error,omitempty"`
 	OpenIssues  int    `json:"open_issues"`
 	TotalIssues int    `json:"total_issues"`
+	Archived    bool   `json:"archived,omitempty"`
 }
 
 type Issue struct {
