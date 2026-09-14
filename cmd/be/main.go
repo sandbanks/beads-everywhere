@@ -532,6 +532,29 @@ func runWebServer(svc *fleet.Service, port string) {
 		_ = templates.Render(w, "issue_card.html", *updated)
 	})
 
+	// View Issue Details Modal
+	r.Get("/issues/{id}", func(w http.ResponseWriter, r *http.Request) {
+		id := chi.URLParam(r, "id")
+		issue, err := svc.GetIssue(id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_ = templates.Render(w, "issue_detail_modal.html", *issue)
+	})
+
+	r.Get("/issues/{id}/details", func(w http.ResponseWriter, r *http.Request) {
+		id := chi.URLParam(r, "id")
+		issue, err := svc.GetIssue(id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_ = templates.Render(w, "issue_detail_modal.html", *issue)
+	})
+
 	// Get Edit Modal
 	r.Get("/issues/{id}/edit", func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")

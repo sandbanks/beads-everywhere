@@ -209,14 +209,26 @@ func (s *Service) ListFleetIssues(repoFilter, statusFilter, search string) ([]mo
 
 func (s *Service) GetIssue(id string) (*models.Issue, error) {
 	issues, err := s.ListFleetIssues("all", "all", id)
-	if err != nil {
-		return nil, err
-	}
-	for _, iss := range issues {
-		if iss.ID == id {
-			return &iss, nil
+	if err == nil {
+		for _, iss := range issues {
+			if iss.ID == id {
+				return &iss, nil
+			}
 		}
 	}
+
+	allRepos, err := s.discoverer.FindAllRepositories()
+	if err == nil {
+		for _, r := range allRepos {
+			rIssues := s.readRepoIssues(r.Path)
+			for _, iss := range rIssues {
+				if iss.ID == id {
+					return &iss, nil
+				}
+			}
+		}
+	}
+
 	return nil, fmt.Errorf("issue %q not found in fleet", id)
 }
 

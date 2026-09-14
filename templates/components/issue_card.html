@@ -45,17 +45,26 @@
 			</div>
 		</div>
 
-		<!-- Title -->
-		<h3 class="text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 group-hover:text-amber-600 dark:group-hover:text-amber-300 transition-colors {{ if eq .Status "closed" }}line-through text-zinc-400 dark:text-zinc-500{{ end }}">
-			{{ .Title }}
-		</h3>
+		<!-- Clickable Title & Description Area -->
+		<div
+			hx-get="/issues/{{ .ID }}"
+			hx-target="#modal-container"
+			hx-swap="innerHTML"
+			class="cursor-pointer group/title select-none"
+			title="Click to view full issue details"
+		>
+			<!-- Title -->
+			<h3 class="text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 group-hover/title:text-amber-600 dark:group-hover/title:text-amber-300 transition-colors {{ if eq .Status "closed" }}line-through text-zinc-400 dark:text-zinc-500{{ end }}">
+				{{ .Title }}
+			</h3>
 
-		<!-- Description -->
-		{{ if and (ne .Description "") (ne .Description .Title) }}
-		<p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed line-clamp-3">
-			{{ .Description }}
-		</p>
-		{{ end }}
+			<!-- Description -->
+			{{ if and (ne .Description "") (ne .Description .Title) }}
+			<p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed line-clamp-3 group-hover/title:text-zinc-800 dark:group-hover/title:text-zinc-300 transition-colors">
+				{{ .Description }}
+			</p>
+			{{ end }}
+		</div>
 	</div>
 
 	<!-- Action Bar (Footer) -->
@@ -113,8 +122,21 @@
 			{{ end }}
 		</div>
 
-		<!-- Terminal Copy, Edit & Delete -->
+		<!-- View, Edit, Terminal Copy & Delete -->
 		<div class="flex items-center gap-1.5">
+			<button
+				hx-get="/issues/{{ .ID }}"
+				hx-target="#modal-container"
+				hx-swap="innerHTML"
+				class="p-1.5 text-zinc-400 hover:text-amber-600 dark:text-zinc-500 dark:hover:text-amber-300 rounded transition-colors"
+				title="View issue details"
+			>
+				<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+				</svg>
+			</button>
+
 			<button
 				hx-get="/issues/{{ .ID }}/edit"
 				hx-target="#modal-container"
