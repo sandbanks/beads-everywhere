@@ -554,3 +554,94 @@ func (s *Service) doctorRepo(repo models.Project, repair bool) models.DoctorRepo
 	return res
 }
 
+// ResolveDirectory resolves a target path or repository name against working directory and scan roots.
+func (s *Service) ResolveDirectory(target string) (string, error) {
+	if target == "" || target == "." {
+		return os.Getwd()
+	}
+
+	home, _ := os.UserHomeDir()
+	if strings.HasPrefix(target, "~/") {
+		target = filepath.Join(home, target[2:])
+	}
+
+	// 1. Direct path check (relative or absolute)
+	abs, err := filepath.Abs(target)
+	if err == nil {
+		if info, err := os.Stat(abs); err == nil && info.IsDir() {
+			return abs, nil
+		}
+	}
+
+	// 2. Search in ScanRoots
+	for _, root := range s.cfg.ScanRoots {
+		if strings.HasPrefix(root, "~/") {
+			root = filepath.Join(home, root[2:])
+		}
+		rootAbs, err := filepath.Abs(root)
+		if err != nil {
+			continue
+		}
+
+		// Direct child
+		candidate := filepath.Join(rootAbs, target)
+		if info, err := os.Stat(candidate); err == nil && info.IsDir() {
+			return candidate, nil
+		}
+
+		// Walk subdirectories (up to 2 levels deep)
+		var found string
+		_ = filepath.WalkDir(rootAbs, func(path string, d os.DirEntry, err error) error {
+			if err != nil || !d.IsDir() {
+				return nil
+			}
+			if d.Name() == ".git" || d.Name() == "node_modules" || d.Name() == "target" || d.Name() == ".beads" {
+				return filepath.SkipDir
+			}
+			rel, _ := filepath.Rel(rootAbs, path)
+			depth := strings.Count(rel, string(os.PathSeparator))
+			if depth > 2 {
+				return filepath.SkipDir
+			}
+			if strings.EqualFold(d.Name(), target) {
+				found = path
+				return filepath.SkipAll
+			}
+			return nil
+		})
+		if found != "" {
+			return found, nil
+		}
+	}
+
+	return "", fmt.Errorf("directory or repository %q not found", target)
+}
+
+// InitRepo initializes a Beads database in target directory using the underlying 'br init' (or 'bd init').
+func (s *Service) InitRepo(target, prefix string) (string, error) {
+	dir, err := s.ResolveDirectory(target)
+	if err != nil {
+		return "", err
+	}
+
+	// Check if .beads already exists
+	beadsDir := filepath.Join(dir, ".beads")
+	if _, err := os.Stat(beadsDir); err == nil {
+		return dir, fmt.Errorf("repository %q is already initialized with Beads (.beads exists at %s)", filepath.Base(dir), beadsDir)
+	}
+
+	args := []string{"init"}
+	if prefix != "" {
+		args = append(args, "--prefix="+prefix)
+	}
+
+	cmd := exec.Command(getBeadsBin(), args...)
+	cmd.Dir = dir
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return dir, fmt.Errorf("beads init failed in %s: %s (%w)", dir, string(out), err)
+	}
+
+	return dir, nil
+}
+

@@ -116,6 +116,7 @@ func main() {
 	rootCmd.AddCommand(newWebCmd())
 	rootCmd.AddCommand(newSyncCmd())
 	rootCmd.AddCommand(newDoctorCmd())
+	rootCmd.AddCommand(newInitCmd())
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
@@ -374,6 +375,40 @@ and reports workspace health, repair status, and issue counts.`,
 	cmd.Flags().BoolVarP(&repairFlag, "repair", "r", false, "Automatically repair degraded or recoverable workspaces")
 	cmd.Flags().BoolVarP(&quietFlag, "quiet", "q", false, "Only show workspaces with issues, errors, or migrations")
 	cmd.Flags().BoolVar(&activeOnlyFlag, "active-only", false, "Only audit active scan_roots, skipping archives")
+	return cmd
+}
+
+func newInitCmd() *cobra.Command {
+	var repoFlag string
+	var prefixFlag string
+
+	cmd := &cobra.Command{
+		Use:   "init [path]",
+		Short: "Initialize a new Beads workspace in the current or target repository",
+		Long: `Init initializes a .beads database in a repository using the underlying 'br init' (or 'bd init').
+You can specify a directory path, a repository name in your scan roots, or omit the argument to initialize the current working directory.`,
+		Args: cobra.MaximumNArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			svc := getFleetService()
+			target := ""
+			if len(args) > 0 {
+				target = args[0]
+			} else if repoFlag != "" {
+				target = repoFlag
+			}
+
+			dir, err := svc.InitRepo(target, prefixFlag)
+			if err != nil {
+				log.Fatalf("❌ Init error: %v", err)
+			}
+
+			fmt.Printf("✅ Initialized Beads workspace in %s\n", dir)
+			fmt.Printf("✨ Ready! You can now run 'br create' or 'be create -r %s'\n", filepath.Base(dir))
+		},
+	}
+
+	cmd.Flags().StringVarP(&repoFlag, "repo", "r", "", "Target repository name in scan roots")
+	cmd.Flags().StringVarP(&prefixFlag, "prefix", "p", "", "Issue ID prefix (e.g. 'ac' or 'app')")
 	return cmd
 }
 
