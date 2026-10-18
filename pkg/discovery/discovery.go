@@ -89,25 +89,6 @@ func (d *Discoverer) findRepositoriesInRoots(roots []string, isArchived bool) ([
 			continue
 		}
 
-		// If root itself has .beads
-		if _, err := os.Stat(filepath.Join(rootPath, ".beads")); err == nil {
-			name := filepath.Base(rootPath)
-			if d.isRepoPermitted(name, rootPath) {
-				p := models.Project{
-					Name:     name,
-					Path:     rootPath,
-					HasGit:   false,
-					Archived: isArchived,
-				}
-				if _, err := os.Stat(filepath.Join(rootPath, ".git")); err == nil {
-					p.HasGit = true
-				}
-				mu.Lock()
-				projectsMap[rootPath] = p
-				mu.Unlock()
-			}
-		}
-
 		wg.Add(1)
 		go func(searchDir string) {
 			defer wg.Done()
@@ -124,9 +105,11 @@ func (d *Discoverer) findRepositoriesInRoots(roots []string, isArchived bool) ([
 					return filepath.SkipDir
 				}
 
-				// Check if this directory contains a .beads folder
-				if name == ".beads" {
-					repoDir := filepath.Dir(path)
+				// A directory containing .beads is a project boundary.
+				// Register the project and stop at the top level: never
+				// descend into it looking for nested .beads folders.
+				if info, err := os.Stat(filepath.Join(path, ".beads")); err == nil && info.IsDir() {
+					repoDir := path
 					repoName := filepath.Base(repoDir)
 
 					if d.isRepoPermitted(repoName, repoDir) {
